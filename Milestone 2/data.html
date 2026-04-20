@@ -177,18 +177,51 @@
   <div class="section-title">When do stops happen?</div>
   <div class="section-desc">Stop patterns by hour of day, day of week, and month. Peaks around midnight and the evening commute (5–6 PM) suggest enforcement patterns tied to specific conditions.</div>
 
-  <!-- Table 2 -->
+  <!-- Table 2a: Hour -->
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">By Hour of Day</div>
+  <div class="table-wrap" style="margin-bottom:40px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Hour</th>
+          <th>Stop Count</th>
+          <th>% of Daily Total</th>
+          <th>Volume</th>
+        </tr>
+      </thead>
+      <tbody id="table2a-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Table 2b: Weekday -->
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">By Day of Week</div>
+  <div class="table-wrap" style="margin-bottom:40px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Stop Count</th>
+          <th>% of Weekly Total</th>
+          <th>Volume</th>
+        </tr>
+      </thead>
+      <tbody id="table2b-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Table 2c: Month -->
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">By Month</div>
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Time Period</th>
-          <th>Category</th>
+          <th>Month</th>
           <th>Stop Count</th>
-          <th>% of Segment Total</th>
+          <th>% of Annual Total</th>
+          <th>Volume</th>
         </tr>
       </thead>
-      <tbody id="table2-body"></tbody>
+      <tbody id="table2c-body"></tbody>
     </table>
   </div>
 
@@ -344,26 +377,53 @@ function renderSection1(T1) {
 }
 
 function renderSection2(T2a, T2b, T2c) {
-  const tbody    = document.getElementById('table2-body');
-  const hourTotal = T2a.reduce((s,d) => s + +d.stop_count, 0);
 
-  // Top 5 busiest hours
-  [...T2a].sort((a,b) => b.stop_count - a.stop_count).slice(0,5).forEach(d => {
-    tbody.innerHTML += `<tr>
+  // ── Table 2a: all 24 hours ──────────────────────────────────────────────
+  const hourTotal = T2a.reduce((s,d) => s + +d.stop_count, 0);
+  const t2a = document.getElementById('table2a-body');
+  const maxHour = Math.max(...T2a.map(d => +d.stop_count));
+  T2a.forEach(d => {
+    const count = +d.stop_count;
+    const pct   = (100 * count / hourTotal).toFixed(1);
+    const w     = Math.round(120 * count / maxHour);
+    t2a.innerHTML += `<tr>
       <td class="num">${String(+d.hour).padStart(2,'0')}:00</td>
-      <td>Hour of Day</td>
-      <td class="num accent">${(+d.stop_count).toLocaleString()}</td>
-      <td class="num">${(100 * d.stop_count / hourTotal).toFixed(1)}%</td>
+      <td class="num accent">${count.toLocaleString()}</td>
+      <td class="num">${pct}%</td>
+      <td><div class="pct-bar-cell"><div class="pct-bar" style="width:${w}px"></div></div></td>
     </tr>`;
   });
 
+  // ── Table 2b: weekdays ──────────────────────────────────────────────────
   const wdTotal = T2b.reduce((s,d) => s + +d.stop_count, 0);
+  const t2b = document.getElementById('table2b-body');
+  const maxWd = Math.max(...T2b.map(d => +d.stop_count));
   T2b.forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td>${d.weekday}</td>
-      <td>Day of Week</td>
-      <td class="num accent">${(+d.stop_count).toLocaleString()}</td>
-      <td class="num">${(100 * d.stop_count / wdTotal).toFixed(1)}%</td>
+    const count = +d.stop_count;
+    const pct   = (100 * count / wdTotal).toFixed(1);
+    const w     = Math.round(120 * count / maxWd);
+    const weekend = d.weekday === 'Saturday' || d.weekday === 'Sunday';
+    t2b.innerHTML += `<tr>
+      <td>${d.weekday}${weekend ? ' <span style="font-size:10px;color:var(--accent-warm)">(weekend)</span>' : ''}</td>
+      <td class="num accent">${count.toLocaleString()}</td>
+      <td class="num">${pct}%</td>
+      <td><div class="pct-bar-cell"><div class="pct-bar teal" style="width:${w}px"></div></div></td>
+    </tr>`;
+  });
+
+  // ── Table 2c: months ────────────────────────────────────────────────────
+  const monthTotal = T2c.reduce((s,d) => s + +d.stop_count, 0);
+  const t2c = document.getElementById('table2c-body');
+  const maxMo = Math.max(...T2c.map(d => +d.stop_count));
+  T2c.forEach(d => {
+    const count = +d.stop_count;
+    const pct   = (100 * count / monthTotal).toFixed(1);
+    const w     = Math.round(120 * count / maxMo);
+    t2c.innerHTML += `<tr>
+      <td>${d.month}</td>
+      <td class="num accent">${count.toLocaleString()}</td>
+      <td class="num">${pct}%</td>
+      <td><div class="pct-bar-cell"><div class="pct-bar warm" style="width:${w}px"></div></div></td>
     </tr>`;
   });
 
