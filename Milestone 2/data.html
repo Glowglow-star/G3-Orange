@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StopAtlas — Data</title>
+<title>StopAtlas - Data</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -112,7 +112,7 @@
   }
   .page-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
   .page-header h1 { font-family:'DM Serif Display',serif; font-size:42px; letter-spacing:-1px; margin-bottom:12px; }
-  .page-header p { font-size:15px; color:var(--ink-light); max-width:600px; line-height:1.7; }
+  .page-header p { font-size:15px; color:var(--ink-light); max-width:920px; line-height:1.75; }
 
   /* ── Section blocks ── */
   .data-section { padding:64px; border-bottom:1px solid var(--rule); }
@@ -121,7 +121,13 @@
 
   .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
   .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
-  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
+  .section-desc {
+    font-size:14px;
+    color:var(--ink-light);
+    line-height:1.78;
+    max-width:920px;
+    margin-bottom:40px;
+  }
 
   /* ── Data table ── */
   .table-wrap { overflow-x:auto; margin-bottom:48px; }
@@ -146,6 +152,33 @@
   .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
   .chart-wrap { position:relative; }
 
+  .analysis-block {
+    margin-top: 28px;
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(237,234,227,0.92), rgba(250,249,246,0.96));
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+  }
+
+  .analysis-kicker {
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:1.8px;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  .analysis-block p {
+    font-size:14px;
+    line-height:1.78;
+    color:var(--ink-light);
+    max-width:920px;
+    margin-bottom:12px;
+  }
+
+  .analysis-block p:last-child { margin-bottom:0; }
+
   /* ── Interactive ideas callout ── */
   .ideas-box { background:var(--ink); color:var(--bg); padding:40px 48px; margin-top:64px; }
   .ideas-box h2 { font-family:'DM Serif Display',serif; font-size:24px; margin-bottom:16px; }
@@ -158,6 +191,26 @@
   .footer-logo { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
   .footer-logo span { font-style:italic; color:var(--accent); }
   .footer-right { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-light); }
+
+  @media (max-width: 900px) {
+    .masthead,
+    .section-nav,
+    .page-header,
+    .data-section,
+    footer,
+    div[style*="padding:0 64px"] {
+      padding-left: 24px !important;
+      padding-right: 24px !important;
+    }
+
+    .charts-grid,
+    .ideas-box ul {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-card.wide { grid-column: span 1; }
+
+  }
 </style>
 </head>
 <body>
@@ -187,6 +240,17 @@
   <div class="page-eyebrow">Data Analysis · ca_san_francisco_50k.csv · 50,000 Records</div>
   <h1>Exploring SF Traffic Stops</h1>
   <p>Three analytical dimensions — spatial distribution, temporal patterns, and enforcement outcomes — drawn from San Francisco Police Department stop data. Each section includes a data table and three visualizations.</p>
+  <div class="analysis-block">
+    <div class="analysis-kicker">Reading the Data</div>
+    <p>
+      Across the dataset, traffic stops are not evenly distributed across San Francisco. The clearest pattern is concentration:
+      stop activity clusters in selected districts, rises during specific parts of the day, and leads to different outcomes depending on stop context and population group.
+    </p>
+    <p>
+      This page is designed to connect those three dimensions into one story. Rather than treating each stop as an isolated event,
+      the visualizations show how geography, time, and post-stop decision-making combine into a broader enforcement pattern.
+    </p>
+  </div>
 </div>
 
 
@@ -358,6 +422,20 @@
   </div>
 </section>
 
+<div style="padding:0 64px; background:var(--bg);">
+  <div class="analysis-block" style="margin-top:0; margin-bottom:32px;">
+    <div class="analysis-kicker">Overall Takeaway</div>
+    <p>
+      The strongest cross-section finding is unevenness. Stops are concentrated in selected districts, cluster in recognizable time windows,
+      and lead to different outcomes depending on why the stop happened and who was stopped.
+    </p>
+    <p>
+      That makes the StopAtlas story more than a set of counts. It is a way of showing that traffic enforcement operates through patterns in place,
+      time, and procedure, which is exactly what the later interactive milestones should help users explore.
+    </p>
+  </div>
+</div>
+
 <!-- Interactive Ideas -->
 <div style="padding:0 64px 64px; background:var(--bg);">
   <div class="ideas-box">
@@ -390,6 +468,20 @@ const donutColors = ['#c0392b','#e67e22','#1a7a6e','#8e44ad','#2980b9','#27ae60'
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.font.size   = 12;
 Chart.defaults.color       = MUTED;
+
+function normalizeHours(rows) {
+  const merged = new Map();
+
+  rows.forEach((row) => {
+    const hour = (+row.hour === 24) ? 0 : +row.hour;
+    const current = merged.get(hour) || 0;
+    merged.set(hour, current + (+row.stop_count));
+  });
+
+  return [...merged.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([hour, stop_count]) => ({ hour, stop_count }));
+}
 
 // ── Render functions (called after data loads) ────────────────────────────
 
@@ -444,6 +536,7 @@ function renderSection1(T1) {
 }
 
 function renderSection2(T2a, T2b, T2c) {
+  T2a = normalizeHours(T2a);
 
   // ── Table 2a: all 24 hours ──────────────────────────────────────────────
   const hourTotal = T2a.reduce((s,d) => s + +d.stop_count, 0);

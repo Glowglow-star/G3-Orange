@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StopAtlas — Data</title>
+<title>StopAtlas - Outcomes</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -112,7 +112,7 @@
   }
   .page-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
   .page-header h1 { font-family:'DM Serif Display',serif; font-size:42px; letter-spacing:-1px; margin-bottom:12px; }
-  .page-header p { font-size:15px; color:var(--ink-light); max-width:600px; line-height:1.7; }
+  .page-header p { font-size:15px; color:var(--ink-light); max-width:920px; line-height:1.75; }
 
   /* ── Section blocks ── */
   .data-section { padding:64px; border-bottom:1px solid var(--rule); }
@@ -121,7 +121,13 @@
 
   .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
   .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
-  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
+  .section-desc {
+    font-size:14px;
+    color:var(--ink-light);
+    line-height:1.78;
+    max-width:920px;
+    margin-bottom:40px;
+  }
 
   /* ── Data table ── */
   .table-wrap { overflow-x:auto; margin-bottom:48px; }
@@ -146,6 +152,33 @@
   .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
   .chart-wrap { position:relative; }
 
+  .analysis-block {
+    margin-top: 28px;
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(237,234,227,0.92), rgba(250,249,246,0.96));
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+  }
+
+  .analysis-kicker {
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:1.8px;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  .analysis-block p {
+    font-size:14px;
+    line-height:1.78;
+    color:var(--ink-light);
+    max-width:920px;
+    margin-bottom:12px;
+  }
+
+  .analysis-block p:last-child { margin-bottom:0; }
+
   /* ── Interactive ideas callout ── */
   .ideas-box { background:var(--ink); color:var(--bg); padding:40px 48px; margin-top:64px; }
   .ideas-box h2 { font-family:'DM Serif Display',serif; font-size:24px; margin-bottom:16px; }
@@ -158,6 +191,20 @@
   .footer-logo { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
   .footer-logo span { font-style:italic; color:var(--accent); }
   .footer-right { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-light); }
+
+  @media (max-width: 900px) {
+    .masthead,
+    .section-nav,
+    .data-section,
+    footer {
+      padding-left: 24px !important;
+      padding-right: 24px !important;
+    }
+
+    .charts-grid { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: span 1; }
+
+  }
 </style>
 </head>
 <body>
@@ -178,7 +225,7 @@
 <div class="section-nav">
   <a href="geography.html">Geography</a>
   <a href="time.html">Time</a>
-  <a href="outcomes.html" class="active">Outcomes</a>
+  <a href="outcome.html" class="active">Outcomes</a>
   <a href="demographics.html">Demographics</a>
 </div>
 
@@ -189,6 +236,17 @@
   <div class="section-label">Tasks 3 & 4 · Outcomes + Demographics</div>
   <div class="section-title">What happens after a stop?</div>
   <div class="section-desc">Enforcement outcomes (warning / citation / arrest) broken down by stop reason and by race. BOLO/Warrant stops result in arrests 42% of the time. Black drivers face an arrest rate nearly 3× that of white drivers (2.6% vs 0.9%).</div>
+  <div class="analysis-block">
+    <div class="analysis-kicker">Interpretation</div>
+    <p>
+      Enforcement outcomes are associated with both stop reason and demographic group.
+      Some categories end primarily in warnings or citations, while others show a much higher arrest share, suggesting that what happens after a stop is structured rather than uniform.
+    </p>
+    <p>
+      The demographic comparison adds another layer to this pattern.
+      These differences do not by themselves explain causation, but they do indicate that outcome disparities deserve closer examination in the later project milestones.
+    </p>
+  </div>
 
   <!-- Table 3 -->
   <div class="table-wrap">
@@ -224,6 +282,12 @@
       <div class="chart-title">Arrest rate by race (grouped bar)</div>
       <div class="chart-wrap"><canvas id="c3c" height="220"></canvas></div>
     </div>
+  </div>
+  <div class="analysis-block">
+    <div class="analysis-kicker">Key Takeaway</div>
+    <p>
+      Post-stop outcomes are not evenly distributed. The data suggests that both the reason for the stop and the characteristics of the stopped population are associated with different enforcement results, making outcome analysis central to the larger StopAtlas story.
+    </p>
   </div>
 </section>
 
