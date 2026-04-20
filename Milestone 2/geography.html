@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StopAtlas — Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --paper: #faf9f6;
+    --ink: #303030;
+    --ink-light: #6b6860;
+    --rule: #d6d3cc;
+    --accent: #ba554a;
+    --accent-warm: #e67e22;
+    --teal: #1a7a6e;
+    --surface: #edeae3;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); font-family:'DM Sans',sans-serif; }
+
+  /* ── Nav (same as homepage) ── */
+  .masthead {
+    background:var(--ink); padding:0 64px;
+    display:flex; align-items:center; justify-content:space-between; height:60px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;   /* 👈 防止被下面内容盖住 */
+  }
+  .masthead-logo img {
+  height: 20px;
+  vertical-align: middle;
+  }
+  .masthead-tagline { font-family:'IBM Plex Mono',monospace; font-size:10px; color:rgba(245,243,238,0.4); letter-spacing:1px; text-transform:uppercase; }
+  .masthead-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.masthead-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(245,243,238,0.55);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.masthead-nav a:visited {
+  color: rgba(245,243,238,0.55);
+}
+
+.masthead-nav a:hover {
+  color: var(--bg);
+}
+
+.masthead-nav a.active {
+  color: var(--bg);
+}
+
+.masthead-nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  height: 2px;
+  background: var(--accent);
+}
+
+  .section-nav {
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+  padding: 0 64px;
+  display: flex;
+  align-items: center;
+}
+
+.section-nav a {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-light);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.section-nav a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+  /* ── Page header ── */
+  .page-header {
+    padding:56px 64px 40px;
+    border-bottom:1px solid var(--rule);
+    background:var(--paper);
+  }
+  .page-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
+  .page-header h1 { font-family:'DM Serif Display',serif; font-size:42px; letter-spacing:-1px; margin-bottom:12px; }
+  .page-header p { font-size:15px; color:var(--ink-light); max-width:600px; line-height:1.7; }
+
+  /* ── Section blocks ── */
+  .data-section { padding:64px; border-bottom:1px solid var(--rule); }
+  .data-section:nth-child(odd) { background:var(--paper); }
+  .data-section:nth-child(even) { background:var(--bg); }
+
+  .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
+  .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
+  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
+
+  /* ── Data table ── */
+  .table-wrap { overflow-x:auto; margin-bottom:48px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead tr { background:var(--ink); color:var(--bg); }
+  thead th { padding:12px 16px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
+  tbody tr { border-bottom:1px solid var(--rule); }
+  tbody tr:hover { background:var(--surface); }
+  tbody td { padding:11px 16px; color:var(--ink); }
+  tbody td.num { font-family:'IBM Plex Mono',monospace; font-size:12px; }
+  tbody td.accent { color:var(--accent); font-weight:600; }
+  .pct-bar-cell { display:flex; align-items:center; gap:8px; }
+  .pct-bar { height:6px; background:var(--accent); border-radius:2px; min-width:2px; }
+  .pct-bar.teal { background:var(--teal); }
+  .pct-bar.warm { background:var(--accent-warm); }
+
+  /* ── Charts grid ── */
+  .charts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .chart-card { background:var(--paper); border:1px solid var(--rule); padding:24px; }
+  .chart-card.wide { grid-column:span 2; }
+  .chart-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
+  .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
+  .chart-wrap { position:relative; }
+
+  /* ── Interactive ideas callout ── */
+  .ideas-box { background:var(--ink); color:var(--bg); padding:40px 48px; margin-top:64px; }
+  .ideas-box h2 { font-family:'DM Serif Display',serif; font-size:24px; margin-bottom:16px; }
+  .ideas-box ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:12px 40px; }
+  .ideas-box li { font-size:13px; line-height:1.6; color:rgba(245,243,238,0.7); padding-left:16px; position:relative; }
+  .ideas-box li::before { content:'→'; position:absolute; left:0; color:var(--accent); }
+
+  /* ── Footer ── */
+  footer { background:var(--paper); border-top:1px solid var(--rule); padding:28px 64px; display:flex; align-items:center; justify-content:space-between; }
+  .footer-logo { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
+  .footer-logo span { font-style:italic; color:var(--accent); }
+  .footer-right { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-light); }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<div class="masthead">
+  <div class="masthead-logo">
+  <img src="logo1.png" alt="StopAtlas Logo">
+</div>
+<nav class="masthead-nav">
+    <a href="index.html">Home</a>
+    <a href="map.html">Map</a>
+    <a href="data.html" class="active">Data</a>
+    <a href="resources.html">Resources</a>
+    <a href="research.html">User Research</a>
+  </nav>
+</div>
+<div class="section-nav">
+  <a href="geography.html" class="active">Geography</a>
+  <a href="time.html">Time</a>
+  <a href="outcomes.html">Outcomes</a>
+  <a href="demographics.html">Demographics</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — WHERE (Spatial)
+════════════════════════════════════════════════════════ -->
+<section class="data-section" id="spatial">
+  <div class="section-label">Task 1 · Spatial Analysis</div>
+  <div class="section-title">Where do stops happen?</div>
+  <div class="section-desc">Stop frequency by SFPD district, revealing which neighborhoods see the highest policing activity. Southern and Ingleside districts lead significantly.</div>
+
+  <!-- Table 1 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>District</th>
+          <th>Code</th>
+          <th>Stop Count</th>
+          <th>Share of Total</th>
+          <th>Relative Volume</th>
+        </tr>
+      </thead>
+      <tbody id="table1-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Charts 1 -->
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <div class="chart-label">Chart 1 of 3</div>
+      <div class="chart-title">Stop count by district (bar)</div>
+      <div class="chart-wrap"><canvas id="c1a" height="220"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">Chart 2 of 3</div>
+      <div class="chart-title">District share (donut)</div>
+      <div class="chart-wrap"><canvas id="c1b" height="220"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-label">Chart 3 of 3</div>
+      <div class="chart-title">Ranked districts — horizontal bar</div>
+      <div class="chart-wrap"><canvas id="c1c" height="220"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── Chart color constants ─────────────────────────────────────────────────
+const RED   = '#c0392b';
+const TEAL  = '#1a7a6e';
+const WARM  = '#e67e22';
+const MUTED = '#6b6860';
+const donutColors = ['#c0392b','#e67e22','#1a7a6e','#8e44ad','#2980b9','#27ae60','#f39c12','#7f8c8d','#d35400','#16a085'];
+
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size   = 12;
+Chart.defaults.color       = MUTED;
+
+// ── Render functions (called after data loads) ────────────────────────────
+
+function renderSection1(T1) {
+  const total = T1.reduce((s,d) => s + +d.stop_count, 0);
+  const max   = Math.max(...T1.map(d => +d.stop_count));
+  const tbody = document.getElementById('table1-body');
+
+  // District name lookup (DB only stores code)
+  const names = {A:'Northern',B:'Southern',C:'Mission',D:'Tenderloin',
+                 E:'Richmond',F:'Taraval',G:'Park',H:'Ingleside',I:'Bayview',J:'Foothill'};
+
+  T1.forEach((d, i) => {
+    const count = +d.stop_count;
+    const name  = names[d.district_code] || d.district_code;
+    const pct   = (100 * count / total).toFixed(1);
+    const w     = Math.round(120 * count / max);
+    tbody.innerHTML += `<tr>
+      <td class="num">${i+1}</td>
+      <td><strong>${name}</strong></td>
+      <td class="num accent">${d.district_code}</td>
+      <td class="num">${count.toLocaleString()}</td>
+      <td class="num">${pct}%</td>
+      <td><div class="pct-bar-cell"><div class="pct-bar" style="width:${w}px"></div>
+          <span style="font-size:11px;color:var(--ink-light)">${count}</span></div></td>
+    </tr>`;
+  });
+
+  const labels = T1.map(d => names[d.district_code] || d.district_code);
+  const counts = T1.map(d => +d.stop_count);
+
+  new Chart(document.getElementById('c1a'), {
+    type: 'bar',
+    data: { labels, datasets: [{data:counts, backgroundColor:RED, borderRadius:3, borderSkipped:false}] },
+    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}} }
+  });
+
+  new Chart(document.getElementById('c1b'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{data:counts, backgroundColor:donutColors, borderWidth:2, borderColor:'#faf9f6'}] },
+    options: { plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}}, cutout:'55%' }
+  });
+
+  new Chart(document.getElementById('c1c'), {
+    type: 'bar',
+    data: {
+      labels: [...labels].reverse(),
+      datasets: [{data:[...counts].reverse(), backgroundColor:TEAL, borderRadius:3, borderSkipped:false}]
+    },
+    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}} }
+  });
+}
+
+
+// ── Fetch all data from live API then render ──────────────────────────────
+async function loadAll() {
+  try {
+    const [r1] = await Promise.all([
+      fetch('data_api.php?task=1').then(r => r.json()),
+    ]);
+
+    renderSection1(r1.data);
+
+  } catch(err) {
+    console.error('Failed to load data:', err);
+    document.body.insertAdjacentHTML('afterbegin',
+      `<div style="background:#c0392b;color:#fff;padding:12px 64px;font-family:monospace;font-size:12px;">
+        ⚠ Could not load data from data_api.php — make sure both files are on the same server.
+      </div>`);
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>
