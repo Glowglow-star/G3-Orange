@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StopAtlas — Resources</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --paper: #faf9f6;
+    --ink: #303030;
+    --ink-light: #6b6860;
+    --rule: #d6d3cc;
+    --accent: #ba554a;
+    --accent-warm: #e67e22;
+    --teal: #1a7a6e;
+    --surface: #edeae3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+  a { color: inherit; }
+
+  .masthead {
+    background: var(--ink);
+    padding: 0 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .masthead-logo img { height: 20px; vertical-align: middle; }
+  .masthead-nav { display: flex; align-items: center; gap: 28px; }
+  .masthead-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 60px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(245,243,238,0.55);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .masthead-nav a:hover, .masthead-nav a.active { color: var(--bg); }
+  .masthead-nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .section-nav {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    padding: 0 64px;
+    display: flex;
+    align-items: center;
+  }
+  .section-nav a {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 24px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-light);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .section-nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .page-header {
+    padding: 56px 64px 40px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .page-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .page-header p {
+    font-size: 15px;
+    color: var(--ink-light);
+    max-width: 760px;
+    line-height: 1.7;
+  }
+
+  .content {
+    padding: 64px;
+  }
+
+  .resource-group {
+    margin-bottom: 44px;
+  }
+
+  .group-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .resource-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 220px;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .resource-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(186,85,74,0.45);
+    box-shadow: 0 10px 24px rgba(48,48,48,0.06);
+  }
+
+  .resource-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .resource-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .resource-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .resource-link:hover { color: var(--accent); }
+
+  .resource-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    letter-spacing: -0.4px;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  .resource-summary {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--ink-light);
+    max-width: 58ch;
+  }
+
+  .resource-footer {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.6px;
+    color: var(--ink-light);
+    background: rgba(255,255,255,0.35);
+  }
+
+  footer {
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    padding: 28px 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .footer-logo span { font-style: italic; color: var(--accent); }
+  .footer-right {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 920px) {
+    .resources-grid { grid-template-columns: 1fr; }
+    .masthead, .section-nav, .page-header, .content, footer { padding-left: 24px; padding-right: 24px; }
+    .masthead { gap: 12px; }
+    .masthead-nav { gap: 16px; flex-wrap: wrap; justify-content: flex-end; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-logo">
+    <img src="logo1.png" alt="StopAtlas Logo">
+  </div>
+  <nav class="masthead-nav">
+    <a href="index.html">Home</a>
+    <a href="map.html">Map</a>
+    <a href="data.html">Analysis</a>
+    <a href="resources.html" class="active">Resources</a>
+  </nav>
+</div>
+
+
+<div class="content">
+  <div class="resource-group">
+    <div class="group-label">Data Sources</div>
+    <div class="resources-grid">
+      <a class="resource-card" href="https://openpolicing.stanford.edu/data/" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Core dataset</span>
+          <span class="resource-link">Open source</span>
+        </div>
+        <h2>Stanford Open Policing Project — San Francisco data</h2>
+        <p class="resource-summary">
+          This is the project’s main dataset, providing standardized traffic-stop records that make it possible to compare where stops happen, when they happen, and what outcomes follow.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">Traffic stops</span>
+          <span class="pill">CSV / RDS</span>
+          <span class="pill">San Francisco</span>
+        </div>
+      </a>
+
+      <a class="resource-card" href="https://kepler.gl/" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Visualization tool</span>
+          <span class="resource-link">Official site</span>
+        </div>
+        <h2>Kepler.gl</h2>
+        <p class="resource-summary">
+          Kepler.gl was used to build and test the map visualization quickly, especially for exploring dense geospatial patterns before translating them into the custom homepage and analysis pages.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">Geospatial viz</span>
+          <span class="pill">WebGL</span>
+          <span class="pill">Interactive maps</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="resource-group">
+    <div class="group-label">Articles / Research</div>
+    <div class="resources-grid">
+      <a class="resource-card" href="https://nature.com/articles/s41562-020-0858-1" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Research paper</span>
+          <span class="resource-link">Read paper</span>
+        </div>
+        <h2>A large-scale analysis of racial disparities in police stops across the United States</h2>
+        <p class="resource-summary">
+          Pierson et al. analyze nearly 100 million traffic stops and show how large-scale stop data can reveal racial disparities in stop decisions and search outcomes.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">Nature Human Behaviour</span>
+          <span class="pill">2020</span>
+        </div>
+      </a>
+
+      <a class="resource-card" href="https://www.ppic.org/publication/racial-disparities-in-traffic-stops/" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Policy report</span>
+          <span class="resource-link">Read report</span>
+        </div>
+        <h2>Racial Disparities in Traffic Stops</h2>
+        <p class="resource-summary">
+          This PPIC report examines 3.4 million California traffic stops and compares disparities across time of day, agency type, and traffic violation type.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">California</span>
+          <span class="pill">Traffic stops</span>
+          <span class="pill">Racial disparities</span>
+        </div>
+      </a>
+
+      <a class="resource-card" href="https://openpolicing.stanford.edu/findings/" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Project findings</span>
+          <span class="resource-link">View findings</span>
+        </div>
+        <h2>Stanford Open Policing Project — Findings</h2>
+        <p class="resource-summary">
+          The project’s findings page summarizes the broader statistical patterns behind the dataset and gives context for how racial disparities appear across agencies and stop types.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">Official findings</span>
+          <span class="pill">Methods context</span>
+        </div>
+      </a>
+
+      <a class="resource-card" href="https://www.nature.com/articles/s41562-020-01029-w" target="_blank" rel="noopener noreferrer">
+        <div class="resource-meta">
+          <span class="resource-tag">Research paper</span>
+          <span class="resource-link">Read paper</span>
+        </div>
+        <h2>Officer bias, over-patrolling and ethnic disparities in stop and search</h2>
+        <p class="resource-summary">
+          This study helps frame stop-and-search disparities as the result of both officer behavior and department-level patterns, which is useful when interpreting concentrated stop activity in a single city.
+        </p>
+        <div class="resource-footer">
+          <span class="pill">Comparative research</span>
+          <span class="pill">Ethnic disparity</span>
+          <span class="pill">Stop and search</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-right">USC · IDSN 530 · Resource index</div>
+</footer>
+
+</body>
+</html>
