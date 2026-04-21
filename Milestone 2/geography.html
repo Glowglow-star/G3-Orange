@@ -3,9 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StopAtlas - Geography</title>
+<title>StopAtlas — Data</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg: #f5f3ee;
@@ -27,7 +32,7 @@
     display:flex; align-items:center; justify-content:space-between; height:60px;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1000;   /* 👈 防止被下面内容盖住 */
   }
   .masthead-logo img {
   height: 20px;
@@ -112,7 +117,7 @@
   }
   .page-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
   .page-header h1 { font-family:'DM Serif Display',serif; font-size:42px; letter-spacing:-1px; margin-bottom:12px; }
-  .page-header p { font-size:15px; color:var(--ink-light); max-width:920px; line-height:1.75; }
+  .page-header p { font-size:15px; color:var(--ink-light); max-width:600px; line-height:1.7; }
 
   /* ── Section blocks ── */
   .data-section { padding:64px; border-bottom:1px solid var(--rule); }
@@ -121,16 +126,22 @@
 
   .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
   .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
-  .section-desc {
-    font-size:14px;
-    color:var(--ink-light);
-    line-height:1.78;
-    max-width:920px;
-    margin-bottom:40px;
-  }
+  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
 
-  /* ── Data table ── */
-  .table-wrap { overflow-x:auto; margin-bottom:48px; }
+.table-wrap {
+  max-height: 470px;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-bottom: 48px;
+  border: 1px solid var(--rule);
+}
+
+.table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--ink);
+}
   table { width:100%; border-collapse:collapse; font-size:13px; }
   thead tr { background:var(--ink); color:var(--bg); }
   thead th { padding:12px 16px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
@@ -145,39 +156,156 @@
   .pct-bar.warm { background:var(--accent-warm); }
 
   /* ── Charts grid ── */
-  .charts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
   .chart-card { background:var(--paper); border:1px solid var(--rule); padding:24px; }
   .chart-card.wide { grid-column:span 2; }
   .chart-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
   .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
-  .chart-wrap { position:relative; }
+  .analysis-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-  .analysis-block {
-    margin-top: 28px;
-    padding: 22px 24px;
-    background: linear-gradient(180deg, rgba(237,234,227,0.92), rgba(250,249,246,0.96));
-    border: 1px solid var(--rule);
-    border-left: 4px solid var(--accent);
-  }
+.analysis-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 24px;
+  align-items: stretch;   /* 关键：左右两边等高 */
+}
 
-  .analysis-kicker {
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    letter-spacing:1.8px;
-    color:var(--accent);
-    text-transform:uppercase;
-    margin-bottom:10px;
-  }
+.analysis-chart,
+.analysis-note {
+  height: 100%;
+}
 
-  .analysis-block p {
-    font-size:14px;
-    line-height:1.78;
-    color:var(--ink-light);
-    max-width:920px;
-    margin-bottom:12px;
-  }
+.analysis-note {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
 
-  .analysis-block p:last-child { margin-bottom:0; }
+.analysis-note h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.analysis-note p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink-light);
+  margin-bottom: 18px;
+}
+
+.district-image {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+  margin-top: auto;  
+}
+  .map-wrap {
+  width: 100%;
+  height: 420px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-wrap .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.lollipop-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lollipop-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 78px;
+  align-items: center;
+  gap: 12px;
+}
+
+.lollipop-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.lollipop-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.lollipop-track {
+  position: relative;
+  height: 12px;
+}
+
+.lollipop-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--rule);
+  transform: translateY(-50%);
+}
+
+.lollipop-dot {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px rgba(250, 249, 246, 0.9);
+}
+
+.lollipop-value {
+  text-align: right;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-light);
+}
+.img-modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.img-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+.district-image {
+  display: block;      
+  width: auto;         
+  max-width: 100%;      
+  max-height: 180px;
+
+  object-fit: contain;
+  object-position: left;   
+
+  border-radius: 8px;
+}
 
   /* ── Interactive ideas callout ── */
   .ideas-box { background:var(--ink); color:var(--bg); padding:40px 48px; margin-top:64px; }
@@ -191,20 +319,6 @@
   .footer-logo { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
   .footer-logo span { font-style:italic; color:var(--accent); }
   .footer-right { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-light); }
-
-  @media (max-width: 900px) {
-    .masthead,
-    .section-nav,
-    .data-section,
-    footer {
-      padding-left: 24px !important;
-      padding-right: 24px !important;
-    }
-
-    .charts-grid { grid-template-columns: 1fr; }
-    .chart-card.wide { grid-column: span 1; }
-
-  }
 </style>
 </head>
 <body>
@@ -217,162 +331,470 @@
 <nav class="masthead-nav">
     <a href="index.html">Home</a>
     <a href="map.html">Map</a>
-    <a href="geography.html" class="active">Data</a>
+    <a href="analysis.html" class="active">Analysis</a>
     <a href="resources.html">Resources</a>
-    <a href="https://docs.google.com/document/d/1JhwazxgDQ-1hIs0X4W1gCejYF4OvU6I4znv9zWITass/edit?usp=sharing" target="_blank">User Research</a>
   </nav>
 </div>
 <div class="section-nav">
   <a href="geography.html" class="active">Geography</a>
   <a href="time.html">Time</a>
   <a href="outcome.html">Outcomes</a>
-  <!-- <a href="demographics.html">Demographics</a> -->
+  
 </div>
 
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — WHERE (Spatial)
+════════════════════════════════════════════════════════ -->
 <section class="data-section" id="spatial">
   <div class="section-label">Task 1 · Spatial Analysis</div>
   <div class="section-title">Where do stops happen?</div>
   <div class="section-desc">Stop frequency by SFPD district, revealing which neighborhoods see the highest policing activity. Southern and Ingleside districts lead significantly.</div>
-  <div class="analysis-block">
-    <div class="analysis-kicker">Interpretation</div>
-    <p>
-      The district distribution suggests that stop activity is concentrated rather than evenly spread across the city.
-      Southern and Ingleside stand out as the strongest clusters, while several other districts show noticeably lower stop volume.
-    </p>
-    <p>
-      This pattern may reflect differences in roadway design, traffic intensity, patrol strategy, or enforcement priorities.
-      Because these are raw stop counts, they should be interpreted as a measure of policing concentration rather than a direct measure of neighborhood danger.
-    </p>
-  </div>
 
   <!-- Table 1 -->
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th>#</th>
-          <th>District</th>
-          <th>Code</th>
-          <th>Stop Count</th>
-          <th>Share of Total</th>
-          <th>Relative Volume</th>
-        </tr>
-      </thead>
-      <tbody id="table1-body"></tbody>
+  <tr>
+    <th>#</th>
+    <th>Lat</th>
+    <th>Lng</th>
+    <th>Location</th>
+    <th>District</th>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Stop Count</th>
+    <th>Share of Total</th>
+    </tr>
+    </thead>
+    <tbody id="table1-body"></tbody>
     </table>
   </div>
 
   <!-- Charts 1 -->
-  <div class="charts-grid">
-    <div class="chart-card wide">
+  <div class="analysis-stack">
+  <div class="analysis-row">
+    <div class="chart-card analysis-chart">
       <div class="chart-label">Chart 1 of 3</div>
-      <div class="chart-title">Stop count by district (bar)</div>
-      <div class="chart-wrap"><canvas id="c1a" height="220"></canvas></div>
+      <div class="chart-title">Stop locations on the map</div>
+      <div id="geoMap" class="map-wrap"></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-label">Chart 2 of 3</div>
-      <div class="chart-title">District share (donut)</div>
-      <div class="chart-wrap"><canvas id="c1b" height="220"></canvas></div>
+    <div class="analysis-note">
+      <h3>Spatial concentration</h3>
+      <p>
+  Stops are not evenly distributed across San Francisco. Instead, they form several clear clusters concentrated in specific corridors, particularly in the central and southeastern parts of the city.
+</p>
+<p>
+  The map shows that areas such as Mission, Ingleside, and Bayview have noticeably higher densities of stops, while large portions of the western districts remain relatively sparse. This suggests that stop activity is closely tied to particular urban zones rather than spread uniformly.
+</p>
     </div>
-    <div class="chart-card wide">
+  </div>
+
+<div class="analysis-row">
+    <div class="chart-card analysis-chart">
       <div class="chart-label">Chart 3 of 3</div>
-      <div class="chart-title">Ranked districts — horizontal bar</div>
-      <div class="chart-wrap"><canvas id="c1c" height="220"></canvas></div>
+      <div class="chart-title">District ranking — lollipop</div>
+      <div id="districtLollipop" class="lollipop-wrap"></div>
+    </div>
+    <div class="analysis-note">
+      <h3>District ranking</h3>
+      <p>
+         Stop activity is highly concentrated in a small number of districts. <strong>Ingleside, Richmond, and Southern</strong> together account for a large share of all stops, each exceeding roughly 18% of the total. In contrast, several districts fall below 5%, indicating a sharp imbalance rather than a gradual distribution.
+      </p>
+        <p>
+        This pattern suggests that enforcement is not evenly spread across the city, but instead focused on specific areas. <strong>The drop-off after the top four districts is steep</strong>, reinforcing that a few locations dominate overall stop activity.
+        </p>
+        <p>
+            District map:
+        </p>
+       <img class="district-image" src="district.jpg" onclick="openImage(this)">
     </div>
   </div>
-  <div class="analysis-block">
-    <div class="analysis-kicker">Key Takeaway</div>
-    <p>
-      A relatively small number of districts account for a large share of observed stops.
-      This makes geography one of the most important filters for understanding where enforcement is experienced most intensely across San Francisco.
-    </p>
+
+  <div class="analysis-row">
+    <div class="chart-card analysis-chart">
+      <div class="chart-label">Chart 2 of 3</div>
+      <div class="chart-title">Stops by hour of day</div>
+      <div class="chart-wrap">
+        <canvas id="timeLine" height="220"></canvas>
+      </div>
+    </div>
+    <div class="analysis-note">
+      <h3>Temporal rhythm</h3>
+      <p>
+  Stop activity follows a clear daily cycle rather than remaining constant. The chart shows a sharp increase in the morning, with a major peak around 8–10 AM, followed by a second rise in the late afternoon and early evening.
+</p>
+<p>
+  Activity drops significantly in the early morning hours (around 3–5 AM), indicating a strong relationship with commuting and daily movement patterns. The repeated peaks suggest that stops are closely tied to predictable time-based behaviors rather than random distribution.
+</p>
+    </div>
   </div>
+
+  
+</div>
 </section>
 
 <script>
-// ── Chart color constants ─────────────────────────────────────────────────
 const RED   = '#c0392b';
 const TEAL  = '#1a7a6e';
 const WARM  = '#e67e22';
 const MUTED = '#6b6860';
-const donutColors = ['#c0392b','#e67e22','#1a7a6e','#8e44ad','#2980b9','#27ae60','#f39c12','#7f8c8d','#d35400','#16a085'];
+
+const districtNames = {
+  A: 'Northern',
+  B: 'Southern',
+  C: 'Mission',
+  D: 'Tenderloin',
+  E: 'Richmond',
+  F: 'Taraval',
+  G: 'Park',
+  H: 'Ingleside',
+  I: 'Bayview',
+  J: 'Foothill'
+};
+
+const districtColors = {
+  A: '#c0392b',
+  B: '#e67e22',
+  C: '#1a7a6e',
+  D: '#8e44ad',
+  E: '#2980b9',
+  F: '#27ae60',
+  G: '#f39c12',
+  H: '#7f8c8d',
+  I: '#d35400',
+  J: '#16a085'
+};
 
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.font.size   = 12;
 Chart.defaults.color       = MUTED;
 
-// ── Render functions (called after data loads) ────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
 
-function renderSection1(T1) {
-  const total = T1.reduce((s,d) => s + +d.stop_count, 0);
-  const max   = Math.max(...T1.map(d => +d.stop_count));
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      field += '"';
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      row.push(field);
+      field = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (field !== '' || row.length) {
+        row.push(field);
+        rows.push(row);
+        row = [];
+        field = '';
+      }
+      if (char === '\r' && next === '\n') i++;
+    } else {
+      field += char;
+    }
+  }
+
+  if (field !== '' || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+function csvToObjects(text) {
+  const rows = parseCSV(text.trim());
+  const headers = rows.shift().map(h => h.trim());
+
+  return rows
+    .filter(r => r.some(cell => cell.trim() !== ''))
+    .map(r => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = (r[i] ?? '').trim();
+      });
+      return obj;
+    });
+}
+
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function formatExcelDate(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value ?? '';
+  const base = Date.UTC(1899, 11, 30);
+  const dt = new Date(base + n * 86400000);
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(dt.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function formatClock(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value ?? '';
+  const total = Math.round(n);
+  const h = Math.floor(total / 3600) % 24;
+  const m = Math.floor((total % 3600) / 60);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function districtLabel(code) {
+  return districtNames[code] || code || 'Unknown';
+}
+
+function districtColor(code) {
+  return districtColors[code] || RED;
+}
+
+function sampleByDistrict(rows, perDistrict = 3, maxRows = 30) {
+  const groups = {};
+  rows.forEach(d => {
+    const key = d.district || 'Unknown';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(d);
+  });
+
+  const sampled = [];
+  Object.keys(groups).forEach(key => {
+    sampled.push(...shuffle(groups[key]).slice(0, perDistrict));
+  });
+
+  return sampled.slice(0, maxRows);
+}
+
+function renderTable(rows) {
   const tbody = document.getElementById('table1-body');
+  tbody.innerHTML = '';
 
-  // District name lookup (DB only stores code)
-  const names = {A:'Northern',B:'Southern',C:'Mission',D:'Tenderloin',
-                 E:'Richmond',F:'Taraval',G:'Park',H:'Ingleside',I:'Bayview',J:'Foothill'};
+  const sampled = sampleByDistrict(rows, 3, 30);
 
-  T1.forEach((d, i) => {
-    const count = +d.stop_count;
-    const name  = names[d.district_code] || d.district_code;
-    const pct   = (100 * count / total).toFixed(1);
-    const w     = Math.round(120 * count / max);
-    tbody.innerHTML += `<tr>
-      <td class="num">${i+1}</td>
-      <td><strong>${name}</strong></td>
-      <td class="num accent">${d.district_code}</td>
-      <td class="num">${count.toLocaleString()}</td>
-      <td class="num">${pct}%</td>
-      <td><div class="pct-bar-cell"><div class="pct-bar" style="width:${w}px"></div>
-          <span style="font-size:11px;color:var(--ink-light)">${count}</span></div></td>
-    </tr>`;
-  });
-
-  const labels = T1.map(d => names[d.district_code] || d.district_code);
-  const counts = T1.map(d => +d.stop_count);
-
-  new Chart(document.getElementById('c1a'), {
-    type: 'bar',
-    data: { labels, datasets: [{data:counts, backgroundColor:RED, borderRadius:3, borderSkipped:false}] },
-    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}} }
-  });
-
-  new Chart(document.getElementById('c1b'), {
-    type: 'doughnut',
-    data: { labels, datasets: [{data:counts, backgroundColor:donutColors, borderWidth:2, borderColor:'#faf9f6'}] },
-    options: { plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}}, cutout:'55%' }
-  });
-
-  new Chart(document.getElementById('c1c'), {
-    type: 'bar',
-    data: {
-      labels: [...labels].reverse(),
-      datasets: [{data:[...counts].reverse(), backgroundColor:TEAL, borderRadius:3, borderSkipped:false}]
-    },
-    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}} }
+  sampled.forEach((d, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="num">${i + 1}</td>
+        <td class="num">${d.lat}</td>
+        <td class="num">${d.lng}</td>
+        <td><strong>${d.location}</strong></td>
+        <td class="num accent">${d.district}</td>
+        <td class="num">${formatExcelDate(d.date)}</td>
+        <td class="num">${formatClock(d.time)}</td>
+        <td class="num">${Number(d.stop_count).toLocaleString()}</td>
+        <td class="num">${d.share_of_total}%</td>
+      </tr>
+    `;
   });
 }
 
+const ORANGE = '#d9892b';
+fillColor: ORANGE
 
-// ── Fetch all data from live API then render ──────────────────────────────
+function getFillOpacity(count, maxCount) {
+  const t = Math.min(1, Math.max(0, count / maxCount));
+  return 0.08 + t * 0.2; // 0.12 ~ 0.30，叠起来不会那么糊
+}
+
+function getColor(count, max) {
+  const t = Math.min(1, count / max); // 0 ~ 1
+
+  // 橙色 → 红色（你的 accent）
+  const r1 = 217, g1 = 137, b1 = 43;   // 橙
+  const r2 = 186, g2 = 85,  b2 = 74;   // accent
+
+  const r = Math.round(r1 + (r2 - r1) * t);
+  const g = Math.round(g1 + (g2 - g1) * t);
+  const b = Math.round(b1 + (b2 - b1) * t);
+
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function renderMap(rows) {
+  const map = L.map('geoMap', {
+    scrollWheelZoom: false
+  }).setView([37.77, -122.42], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  const maxCount = Math.max(...rows.map(d => Number(d.stop_count) || 0));
+  const bounds = [];
+
+  // 鼠标移入地图区域后，才允许滚轮缩放
+  const mapEl = map.getContainer();
+  mapEl.addEventListener('mouseenter', () => {
+    map.scrollWheelZoom.enable();
+  });
+  mapEl.addEventListener('mouseleave', () => {
+    map.scrollWheelZoom.disable();
+  });
+
+  rows.forEach(d => {
+    const lat = Number(d.lat);
+    const lng = Number(d.lng);
+    const count = Number(d.stop_count) || 0;
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    const radius = 2 + Math.sqrt(count / maxCount) * 10;
+   const fillOpacity = getFillOpacity(count, maxCount);
+    const color = getColor(count, maxCount);
+
+    const marker = L.circleMarker([lat, lng], {
+  radius,
+  color: color,
+  weight: 1,
+  opacity: 0.4,
+  fillColor: color,
+  fillOpacity
+});
+
+    marker.bindPopup(`
+      <strong>${d.location || 'Unknown location'}</strong><br>
+      District: ${districtLabel(d.district)}<br>
+      Stops: ${count.toLocaleString()}<br>
+      ${formatExcelDate(d.date)} ${formatClock(d.time)}
+    `);
+
+    marker.addTo(map);
+    bounds.push([lat, lng]);
+  });
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding: [20, 20] });
+  }
+}
+
+function renderTimeLine(rows) {
+  const hourTotals = Array.from({ length: 24 }, (_, h) => ({
+    hour: h,
+    value: 0
+  }));
+
+  rows.forEach(d => {
+    const seconds = Number(d.time);
+    const count = Number(d.stop_count) || 0;
+    if (!Number.isFinite(seconds)) return;
+
+    const hour = Math.floor(seconds / 3600) % 24;
+    hourTotals[hour].value += count;
+  });
+
+  new Chart(document.getElementById('timeLine'), {
+    type: 'line',
+    data: {
+      labels: hourTotals.map(d => `${String(d.hour).padStart(2, '0')}:00`),
+      datasets: [{
+        label: 'Stops',
+        data: hourTotals.map(d => d.value),
+        borderColor: RED,
+        backgroundColor: 'rgba(192, 57, 43, 0.10)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: RED
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+      }
+    }
+  });
+}
+
+function renderDistrictLollipop(rows) {
+  const agg = new Map();
+
+  rows.forEach(d => {
+    const district = d.district || 'Unknown';
+    const count = Number(d.stop_count) || 0;
+    agg.set(district, (agg.get(district) || 0) + count);
+  });
+
+  const items = [...agg.entries()]
+    .map(([district, value]) => ({ district, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const total = items.reduce((sum, d) => sum + d.value, 0);
+  const max = Math.max(...items.map(d => d.value));
+  const wrap = document.getElementById('districtLollipop');
+
+  wrap.innerHTML = items.map(d => {
+    const pct = ((d.value / total) * 100).toFixed(1);
+    const left = (d.value / max) * 100;
+
+    return `
+      <div class="lollipop-row">
+        <div class="lollipop-label">
+          <span class="lollipop-chip" style="background:${districtColor(d.district)}"></span>
+          ${districtLabel(d.district)}
+        </div>
+        <div class="lollipop-track">
+          <div class="lollipop-line"></div>
+          <div class="lollipop-dot" style="left:${left}%; background:${districtColor(d.district)}"></div>
+        </div>
+        <div class="lollipop-value">${d.value.toLocaleString()} (${pct}%)</div>
+      </div>
+    `;
+  }).join('');
+}
+
 async function loadAll() {
   try {
-    const [r1] = await Promise.all([
-      fetch('data_api.php?task=1').then(r => r.json()),
-    ]);
+    const csvText = await fetch('table_geo.csv').then(r => r.text());
+    const rows = csvToObjects(csvText);
 
-    renderSection1(r1.data);
-
-  } catch(err) {
-    console.error('Failed to load data:', err);
-    document.body.insertAdjacentHTML('afterbegin',
+    renderTable(rows);
+    renderMap(rows);
+    renderTimeLine(rows);
+    renderDistrictLollipop(rows);
+  } catch (err) {
+    console.error('Failed to load CSV:', err);
+    document.body.insertAdjacentHTML(
+      'afterbegin',
       `<div style="background:#c0392b;color:#fff;padding:12px 64px;font-family:monospace;font-size:12px;">
-        ⚠ Could not load data from data_api.php — make sure both files are on the same server.
-      </div>`);
+        ⚠ Could not load table_geo.csv — make sure it is in the same folder as geography.html.
+      </div>`
+    );
   }
 }
 
 loadAll();
 </script>
+<script>
+function openImage(img) {
+  const modal = document.getElementById('imgModal');
+  const modalImg = document.getElementById('imgModalContent');
+
+  modal.style.display = 'flex';
+  modalImg.src = img.src;
+}
+
+function closeImage() {
+  document.getElementById('imgModal').style.display = 'none';
+}
+</script>
+<div id="imgModal" class="img-modal" onclick="closeImage()">
+  <img id="imgModalContent">
+</div>
 </body>
 </html>
