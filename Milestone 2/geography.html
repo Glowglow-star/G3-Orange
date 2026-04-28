@@ -15,7 +15,7 @@
   :root {
     --bg: #f5f3ee;
     --paper: #faf9f6;
-    --ink: #303030;
+    --ink: #424242;
     --ink-light: #6b6860;
     --rule: #d6d3cc;
     --accent: #ba554a;
@@ -87,6 +87,9 @@
   padding: 0 64px;
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 60px;   
+  z-index: 999;
 }
 
 .section-nav a {
@@ -126,7 +129,7 @@
 
   .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
   .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
-  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
+  .section-desc { font-size:16px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
 
 .table-wrap {
   max-height: 470px;
@@ -158,8 +161,14 @@
   /* ── Charts grid ── */
   .chart-card { background:var(--paper); border:1px solid var(--rule); padding:24px; }
   .chart-card.wide { grid-column:span 2; }
-  .chart-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
-  .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
+  .chart-label { font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
+  .chart-header {
+  display: flex;
+  align-items: baseline;   /* 对齐更自然 */
+  gap: 12px;           
+  justify-content: space-between; /* 关键：左右拉开 */
+}
+  .chart-title { font-family: 'DM Serif Display', serif; font-size:24px; font-weight:600; color:var(--ink); margin-bottom:16px; }
   .analysis-stack {
   display: flex;
   flex-direction: column;
@@ -374,8 +383,10 @@
   <div class="analysis-stack">
   <div class="analysis-row">
     <div class="chart-card analysis-chart">
-      <div class="chart-label">Chart 1 of 3</div>
+      <div class="chart-header">
       <div class="chart-title">Stop locations on the map</div>
+      <div class="chart-label">Chart 1 of 3</div>
+      </div>
       <div id="geoMap" class="map-wrap"></div>
     </div>
     <div class="analysis-note">
@@ -391,8 +402,11 @@
 
 <div class="analysis-row">
     <div class="chart-card analysis-chart">
-      <div class="chart-label">Chart 3 of 3</div>
+      <div class="chart-header">
+      
       <div class="chart-title">District ranking — lollipop</div>
+      <div class="chart-label">Chart 2 of 3</div>
+      </div>
       <div id="districtLollipop" class="lollipop-wrap"></div>
     </div>
     <div class="analysis-note">
@@ -412,8 +426,11 @@
 
   <div class="analysis-row">
     <div class="chart-card analysis-chart">
-      <div class="chart-label">Chart 2 of 3</div>
+      <div class="chart-header">
+      
       <div class="chart-title">Stops by hour of day</div>
+      <div class="chart-label">Chart 3 of 3</div>
+      </div>
       <div class="chart-wrap">
         <canvas id="timeLine" height="220"></canvas>
       </div>
@@ -623,8 +640,9 @@ function getColor(count, max) {
 
 function renderMap(rows) {
   const map = L.map('geoMap', {
-    scrollWheelZoom: false
-  }).setView([37.77, -122.42], 12);
+    scrollWheelZoom: false,
+    zoomControl: false
+  }).setView([37.76, -122.42], 12);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
@@ -674,9 +692,7 @@ function renderMap(rows) {
     bounds.push([lat, lng]);
   });
 
-  if (bounds.length) {
-    map.fitBounds(bounds, { padding: [20, 20] });
-  }
+ 
 }
 
 function renderTimeLine(rows) {

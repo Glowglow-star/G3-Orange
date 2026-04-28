@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StopAtlas — Data</title>
+<title>StopAtlas — Analysis</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
     --bg: #f5f3ee;
     --paper: #faf9f6;
-    --ink: #303030;
+    --ink: #424242;
     --ink-light: #6b6860;
     --rule: #d6d3cc;
     --accent: #ba554a;
@@ -19,540 +18,387 @@
     --surface: #edeae3;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--ink); font-family:'DM Sans',sans-serif; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--bg); color:var(--ink); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
-  /* ── Nav (same as homepage) ── */
+  /* ── Masthead ── */
   .masthead {
     background:var(--ink); padding:0 64px;
     display:flex; align-items:center; justify-content:space-between; height:60px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;   /* 👈 防止被下面内容盖住 */
+    position: sticky; top: 0; z-index: 1000;
   }
-  .masthead-logo img {
-  height: 20px;
-  vertical-align: middle;
+  .masthead-logo img { height: 20px; vertical-align: middle; }
+  .masthead-nav { display: flex; align-items: center; gap: 28px; }
+  .masthead-nav a {
+    position: relative; display: inline-flex; align-items: center; height: 60px;
+    font-size: 12px; font-weight: 500; color: rgba(245,243,238,0.55);
+    text-decoration: none; letter-spacing: 0.5px; line-height: 1; transition: color 0.15s;
   }
-  .masthead-tagline { font-family:'IBM Plex Mono',monospace; font-size:10px; color:rgba(245,243,238,0.4); letter-spacing:1px; text-transform:uppercase; }
-  .masthead-nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
+  .masthead-nav a:visited { color: rgba(245,243,238,0.55); }
+  .masthead-nav a:hover { color: var(--bg); }
+  .masthead-nav a.active { color: var(--bg); }
+  .masthead-nav a.active::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 16px;
+    height: 2px; background: var(--accent);
+  }
 
-.masthead-nav a {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 60px;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(245,243,238,0.55);
-  text-decoration: none;
-  letter-spacing: 0.5px;
-  line-height: 1;
-  transition: color 0.15s;
-}
-
-.masthead-nav a:visited {
-  color: rgba(245,243,238,0.55);
-}
-
-.masthead-nav a:hover {
-  color: var(--bg);
-}
-
-.masthead-nav a.active {
-  color: var(--bg);
-}
-
-.masthead-nav a.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 16px;
-  height: 2px;
-  background: var(--accent);
-}
-
+  /* ── Sticky sub-nav (hidden until activated) ── */
   .section-nav {
-  border-bottom: 1px solid var(--rule);
-  background: var(--paper);
-  padding: 0 64px;
-  display: flex;
-  align-items: center;
-}
-
-.section-nav a {
-  display: flex;
-  align-items: center;
-  height: 48px;
-  padding: 0 24px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-light);
-  text-decoration: none;
-  letter-spacing: 0.3px;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s;
-  line-height: 1;
-}
-
-.section-nav a.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    padding: 0 64px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 60px;
+    z-index: 999;
+    /* hidden state */
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .section-nav.visible {
+    height: 48px;
+    opacity: 1;
+  }
+  .section-nav a {
+    display: flex; align-items: center; height: 48px; padding: 0 24px;
+    font-size: 12px; font-weight: 600; color: var(--ink-light); text-decoration: none;
+    letter-spacing: 0.3px; border-bottom: 2px solid transparent; transition: all 0.15s; line-height: 1;
+  }
+  .section-nav a:hover { color: var(--ink); }
+  .section-nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
 
   /* ── Page header ── */
   .page-header {
-    padding:56px 64px 40px;
-    border-bottom:1px solid var(--rule);
-    background:var(--paper);
+    padding: 72px 64px 64px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
   }
-  .page-eyebrow { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; }
-  .page-header h1 { font-family:'DM Serif Display',serif; font-size:42px; letter-spacing:-1px; margin-bottom:12px; }
-  .page-header p { font-size:15px; color:var(--ink-light); max-width:600px; line-height:1.7; }
+  .page-eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 16px;
+  }
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif; font-size: 48px; letter-spacing: -1.5px;
+    margin-bottom: 16px; line-height: 1.1;
+  }
+  .page-header p {
+    font-size: 16px; color: var(--ink-light); max-width: 620px; line-height: 1.75;
+  }
 
-  /* ── Section blocks ── */
-  .data-section { padding:64px; border-bottom:1px solid var(--rule); }
-  .data-section:nth-child(odd) { background:var(--paper); }
-  .data-section:nth-child(even) { background:var(--bg); }
+  /* ── Cards area ── */
+  .cards-stage {
+    padding: 80px 64px 120px;
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+  }
 
-  .section-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
-  .section-title { font-family:'DM Serif Display',serif; font-size:28px; letter-spacing:-0.5px; margin-bottom:6px; }
-  .section-desc { font-size:14px; color:var(--ink-light); line-height:1.7; max-width:640px; margin-bottom:40px; }
+  /* Each card */
+  .dim-card {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 40px 36px 36px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition:
+      transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.25s;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .dim-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .dim-card.geo::before  { background: var(--accent); }
+  .dim-card.time::before { background: var(--accent-warm); }
+  .dim-card.out::before  { background: var(--teal); }
 
-  /* ── Data table ── */
-  .table-wrap { overflow-x:auto; margin-bottom:48px; }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  thead tr { background:var(--ink); color:var(--bg); }
-  thead th { padding:12px 16px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; font-weight:500; }
-  tbody tr { border-bottom:1px solid var(--rule); }
-  tbody tr:hover { background:var(--surface); }
-  tbody td { padding:11px 16px; color:var(--ink); }
-  tbody td.num { font-family:'IBM Plex Mono',monospace; font-size:12px; }
-  tbody td.accent { color:var(--accent); font-weight:600; }
-  .pct-bar-cell { display:flex; align-items:center; gap:8px; }
-  .pct-bar { height:6px; background:var(--accent); border-radius:2px; min-width:2px; }
-  .pct-bar.teal { background:var(--teal); }
-  .pct-bar.warm { background:var(--accent-warm); }
+  .dim-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(66,66,66,0.12);
+    border-color: transparent;
+  }
+  .dim-card:hover::before { transform: scaleX(1); }
 
-  /* ── Charts grid ── */
-  .charts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-  .chart-card { background:var(--paper); border:1px solid var(--rule); padding:24px; }
-  .chart-card.wide { grid-column:span 2; }
-  .chart-label { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:6px; }
-  .chart-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:16px; }
-  .chart-wrap { position:relative; }
+  /* Card "pressed" during animation */
+  .dim-card.activating {
+    transform: scale(0.97);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-  /* ── Interactive ideas callout ── */
-  .ideas-box { background:var(--ink); color:var(--bg); padding:40px 48px; margin-top:64px; }
-  .ideas-box h2 { font-family:'DM Serif Display',serif; font-size:24px; margin-bottom:16px; }
-  .ideas-box ul { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:12px 40px; }
-  .ideas-box li { font-size:13px; line-height:1.6; color:rgba(245,243,238,0.7); padding-left:16px; position:relative; }
-  .ideas-box li::before { content:'→'; position:absolute; left:0; color:var(--accent); }
+  .card-num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 2px;
+    color: var(--ink-light); text-transform: uppercase; margin-bottom: 32px;
+    opacity: 0.6;
+  }
+  .card-icon {
+    width: 48px; height: 48px; margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-icon svg { width: 36px; height: 36px; }
+
+  .dim-card.geo  .card-icon svg { stroke: var(--accent); }
+  .dim-card.time .card-icon svg { stroke: var(--accent-warm); }
+  .dim-card.out  .card-icon svg { stroke: var(--teal); }
+
+  .card-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .dim-card.geo  .card-label { color: var(--accent); }
+  .dim-card.time .card-label { color: var(--accent-warm); }
+  .dim-card.out  .card-label { color: var(--teal); }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif; font-size: 26px; letter-spacing: -0.5px;
+    margin-bottom: 4px; line-height: 1.2;
+  }
+  .card-subtitle {
+    font-family: 'DM Serif Display', serif; font-size: 18px; letter-spacing: -0.5px;
+    margin-bottom: 16px; line-height: 1.2; color: var(--ink-light);
+  }
+  .card-cta {
+    margin-top: 32px; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+    transition: gap 0.2s;
+  }
+  .dim-card.geo  .card-cta { color: var(--accent); }
+  .dim-card.time .card-cta { color: var(--accent-warm); }
+  .dim-card.out  .card-cta { color: var(--teal); }
+  .dim-card:hover .card-cta { gap: 12px; }
+
+  .card-cta-arrow { font-size: 16px; line-height: 1; }
+
+  /* ── Full-screen overlay transition ── */
+  .page-transition-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .page-transition-overlay.active {
+    pointer-events: all;
+  }
+  /* The expanding circle */
+  .transition-circle {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    transform-origin: center;
+    transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.1s 0.55s;
+  }
 
   /* ── Footer ── */
-  footer { background:var(--paper); border-top:1px solid var(--rule); padding:28px 64px; display:flex; align-items:center; justify-content:space-between; }
-  .footer-logo { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
-  .footer-logo span { font-style:italic; color:var(--accent); }
-  .footer-right { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-light); }
+  footer {
+    background: var(--paper); border-top: 1px solid var(--rule);
+    padding: 28px 64px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--ink); }
+  .footer-logo span { font-style: italic; color: var(--accent); }
+  .footer-right { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-light); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .masthead { padding: 0 24px; }
+    .page-header { padding: 48px 24px 40px; }
+    .page-header h1 { font-size: 34px; }
+    .cards-stage { flex-direction: column; padding: 40px 24px 80px; }
+    .section-nav { padding: 0 24px; }
+    footer { padding: 24px; flex-direction: column; gap: 12px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Nav -->
+<!-- ── Masthead ── -->
 <div class="masthead">
   <div class="masthead-logo">
-  <img src="logo1.png" alt="StopAtlas Logo">
-</div>
-<nav class="masthead-nav">
+    <img src="logo1.png" alt="StopAtlas Logo">
+  </div>
+  <nav class="masthead-nav">
     <a href="index.html">Home</a>
     <a href="map.html">Map</a>
     <a href="data.html" class="active">Analysis</a>
     <a href="resources.html">Resources</a>
   </nav>
 </div>
-<div class="section-nav">
-  <a href="geography.html" class="active">Geography</a>
-  <a href="time.html">Time</a>
-  <a href="outcomes.html">Outcomes</a>
-  <a href="demographics.html">Demographics</a>
+
+<!-- ── Sticky sub-nav (slides in after card click) ── -->
+<div class="section-nav" id="sectionNav">
+  <a href="geography.html" id="navGeo">Geography</a>
+  <a href="time.html"      id="navTime">Time</a>
+  <a href="outcomes.html"  id="navOut">Outcomes</a>
 </div>
 
-<!-- Page Header -->
+<!-- ── Page Header ── -->
 <div class="page-header">
   <div class="page-eyebrow">Data Analysis · ca_san_francisco_50k.csv · 50,000 Records</div>
   <h1>Exploring SF Traffic Stops</h1>
   <p>Three analytical dimensions — spatial distribution, temporal patterns, and enforcement outcomes — drawn from San Francisco Police Department stop data. Each section includes a data table and three visualizations.</p>
 </div>
 
+<!-- ── Dimension Cards ── -->
+<div class="cards-stage">
 
-<!-- ═══════════════════════════════════════════════════════
-     SECTION 1 — WHERE (Spatial)
-════════════════════════════════════════════════════════ -->
-<section class="data-section" id="spatial">
-  <div class="section-label">Task 1 · Spatial Analysis</div>
-  <div class="section-title">Where do stops happen?</div>
-  <div class="section-desc">Stop frequency by SFPD district, revealing which neighborhoods see the highest policing activity. Southern and Ingleside districts lead significantly.</div>
-
-  <!-- Table 1 -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>District</th>
-          <th>Code</th>
-          <th>Stop Count</th>
-          <th>Share of Total</th>
-          <th>Relative Volume</th>
-        </tr>
-      </thead>
-      <tbody id="table1-body"></tbody>
-    </table>
+  <!-- Geography -->
+  <div class="dim-card geo" id="card-geo" onclick="navigateTo('geography.html', this, 'geo')">
+    <div class="card-num">01 / 03</div>
+    <div class="card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+    </div>
+    <div class="card-title">Geography</div>
+    <div class="card-subtitle">Where do stops happen?</div>
+   
+    <div class="card-cta">Explore spatial patterns <span class="card-cta-arrow">→</span></div>
   </div>
 
-  <!-- Charts 1 -->
-  <div class="charts-grid">
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 1 of 3</div>
-      <div class="chart-title">Stop count by district (bar)</div>
-      <div class="chart-wrap"><canvas id="c1a" height="220"></canvas></div>
+  <!-- Time -->
+  <div class="dim-card time" id="card-time" onclick="navigateTo('time.html', this, 'time')">
+    <div class="card-num">02 / 03</div>
+    <div class="card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12 7 12 12 15.5 15.5"/>
+      </svg>
     </div>
-    <div class="chart-card">
-      <div class="chart-label">Chart 2 of 3</div>
-      <div class="chart-title">District share (donut)</div>
-      <div class="chart-wrap"><canvas id="c1b" height="220"></canvas></div>
-    </div>
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 3 of 3</div>
-      <div class="chart-title">Ranked districts — horizontal bar</div>
-      <div class="chart-wrap"><canvas id="c1c" height="220"></canvas></div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════════════
-     SECTION 2 — WHEN (Temporal)
-════════════════════════════════════════════════════════ -->
-<section class="data-section" id="temporal">
-  <div class="section-label">Task 2 · Temporal Analysis</div>
-  <div class="section-title">When do stops happen?</div>
-  <div class="section-desc">Stop patterns by hour of day, day of week, and month. Peaks around midnight and the evening commute (5–6 PM) suggest enforcement patterns tied to specific conditions.</div>
-
-  <!-- Table 2 -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Time Period</th>
-          <th>Category</th>
-          <th>Stop Count</th>
-          <th>% of Segment Total</th>
-        </tr>
-      </thead>
-      <tbody id="table2-body"></tbody>
-    </table>
+    <div class="card-title">Time</div>
+    <div class="card-subtitle">When do stops occur?</div>
+   
+    <div class="card-cta">Explore temporal patterns <span class="card-cta-arrow">→</span></div>
   </div>
 
-  <!-- Charts 2 -->
-  <div class="charts-grid">
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 1 of 3</div>
-      <div class="chart-title">Stops by hour of day (line)</div>
-      <div class="chart-wrap"><canvas id="c2a" height="200"></canvas></div>
+  <!-- Outcomes -->
+  <div class="dim-card out" id="card-out" onclick="navigateTo('outcomes.html', this, 'out')">
+    <div class="card-num">03 / 03</div>
+    <div class="card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
     </div>
-    <div class="chart-card">
-      <div class="chart-label">Chart 2 of 3</div>
-      <div class="chart-title">Stops by day of week</div>
-      <div class="chart-wrap"><canvas id="c2b" height="200"></canvas></div>
-    </div>
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 3 of 3</div>
-      <div class="chart-title">Stops by month</div>
-      <div class="chart-wrap"><canvas id="c2c" height="200"></canvas></div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════════════════
-     SECTION 3 — OUTCOMES (reason × result + demographics)
-════════════════════════════════════════════════════════ -->
-<section class="data-section" id="outcomes">
-  <div class="section-label">Tasks 3 & 4 · Outcomes + Demographics</div>
-  <div class="section-title">What happens after a stop?</div>
-  <div class="section-desc">Enforcement outcomes (warning / citation / arrest) broken down by stop reason and by race. BOLO/Warrant stops result in arrests 42% of the time. Black drivers face an arrest rate nearly 3× that of white drivers (2.6% vs 0.9%).</div>
-
-  <!-- Table 3 -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Stop Reason</th>
-          <th>Total Stops</th>
-          <th>Warning %</th>
-          <th>Citation %</th>
-          <th>Arrest %</th>
-          <th>Search Hit Rate</th>
-        </tr>
-      </thead>
-      <tbody id="table3-body"></tbody>
-    </table>
+    <div class="card-title">Outcomes</div>
+    <div class="card-subtitle">What happens after a stop?</div>
+   
+    <div class="card-cta">Explore enforcement outcomes <span class="card-cta-arrow">→</span></div>
   </div>
 
-  <!-- Charts 3 -->
-  <div class="charts-grid">
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 1 of 3</div>
-      <div class="chart-title">Outcome breakdown by stop reason (stacked bar)</div>
-      <div class="chart-wrap"><canvas id="c3a" height="220"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-label">Chart 2 of 3</div>
-      <div class="chart-title">Search contraband hit rate by reason</div>
-      <div class="chart-wrap"><canvas id="c3b" height="220"></canvas></div>
-    </div>
-    <div class="chart-card wide">
-      <div class="chart-label">Chart 3 of 3</div>
-      <div class="chart-title">Arrest rate by race (grouped bar)</div>
-      <div class="chart-wrap"><canvas id="c3c" height="220"></canvas></div>
-    </div>
-  </div>
-</section>
-
-<!-- Interactive Ideas -->
-<div style="padding:0 64px 64px; background:var(--bg);">
-  <div class="ideas-box">
-    <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">Interactive Ideas — M3 / M4</div>
-    <h2>How could these become interactive?</h2>
-    <ul>
-      <li>Leaflet.js heatmap on an actual SF basemap — click a neighborhood to filter all charts below</li>
-      <li>Hour-of-day slider: drag a time window to see how district rankings shift at night vs. daytime</li>
-      <li>Reason filter: toggle stop reasons on/off to compare outcome distributions side-by-side</li>
-      <li>Race × Reason drill-down: select a race group to see which violations they're most stopped for</li>
-      <li>Year comparison toggle (2007 vs 2014 data) to see if patterns changed over time</li>
-      <li>Search hit rate calculator: input stop count, search rate, hit rate to model expected contraband finds</li>
-    </ul>
-  </div>
 </div>
 
+<!-- ── Footer ── -->
 <footer>
   <div class="footer-logo">Stop<span>Atlas</span></div>
-  <div class="footer-right">USC · IDSN 530 · Data: SFPD Stop Data · ca_san_francisco_50k.csv</div>
+  <div class="footer-right">SF POLICE DEPARTMENT · 50,000 RECORDS · 2019–2023</div>
 </footer>
 
+<!-- ── Page transition overlay ── -->
+<div class="page-transition-overlay" id="overlay">
+  <div class="transition-circle" id="transCircle"></div>
+</div>
+
 <script>
-// ── Chart color constants ─────────────────────────────────────────────────
-const RED   = '#c0392b';
-const TEAL  = '#1a7a6e';
-const WARM  = '#e67e22';
-const MUTED = '#6b6860';
-const donutColors = ['#c0392b','#e67e22','#1a7a6e','#8e44ad','#2980b9','#27ae60','#f39c12','#7f8c8d','#d35400','#16a085'];
+  const colorMap = {
+    geo:  getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+    time: getComputedStyle(document.documentElement).getPropertyValue('--accent-warm').trim(),
+    out:  getComputedStyle(document.documentElement).getPropertyValue('--teal').trim(),
+  };
 
-Chart.defaults.font.family = "'DM Sans', sans-serif";
-Chart.defaults.font.size   = 12;
-Chart.defaults.color       = MUTED;
+  // Real colors since CSS vars may not resolve immediately in all browsers
+  const colors = {
+    geo:  '#ba554a',
+    time: '#e67e22',
+    out:  '#1a7a6e',
+  };
 
-// ── Render functions (called after data loads) ────────────────────────────
+  const navLinks = {
+    geo:  document.getElementById('navGeo'),
+    time: document.getElementById('navTime'),
+    out:  document.getElementById('navOut'),
+  };
 
-function renderSection1(T1) {
-  const total = T1.reduce((s,d) => s + +d.stop_count, 0);
-  const max   = Math.max(...T1.map(d => +d.stop_count));
-  const tbody = document.getElementById('table1-body');
+  function navigateTo(href, cardEl, type) {
+    // 1. Brief press effect
+    cardEl.classList.add('activating');
 
-  // District name lookup (DB only stores code)
-  const names = {A:'Northern',B:'Southern',C:'Mission',D:'Tenderloin',
-                 E:'Richmond',F:'Taraval',G:'Park',H:'Ingleside',I:'Bayview',J:'Foothill'};
+    // 2. Show sticky nav bar (slides down)
+    const nav = document.getElementById('sectionNav');
+    nav.classList.add('visible');
 
-  T1.forEach((d, i) => {
-    const count = +d.stop_count;
-    const name  = names[d.district_code] || d.district_code;
-    const pct   = (100 * count / total).toFixed(1);
-    const w     = Math.round(120 * count / max);
-    tbody.innerHTML += `<tr>
-      <td class="num">${i+1}</td>
-      <td><strong>${name}</strong></td>
-      <td class="num accent">${d.district_code}</td>
-      <td class="num">${count.toLocaleString()}</td>
-      <td class="num">${pct}%</td>
-      <td><div class="pct-bar-cell"><div class="pct-bar" style="width:${w}px"></div>
-          <span style="font-size:11px;color:var(--ink-light)">${count}</span></div></td>
-    </tr>`;
-  });
+    // Mark the right nav link as active
+    Object.values(navLinks).forEach(l => l.classList.remove('active'));
+    navLinks[type].classList.add('active');
 
-  const labels = T1.map(d => names[d.district_code] || d.district_code);
-  const counts = T1.map(d => +d.stop_count);
+    // 3. After nav settles, trigger expanding circle wipe
+    setTimeout(() => {
+      cardEl.classList.remove('activating');
 
-  new Chart(document.getElementById('c1a'), {
-    type: 'bar',
-    data: { labels, datasets: [{data:counts, backgroundColor:RED, borderRadius:3, borderSkipped:false}] },
-    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}} }
-  });
+      // Get card center for origin point
+      const rect = cardEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
 
-  new Chart(document.getElementById('c1b'), {
-    type: 'doughnut',
-    data: { labels, datasets: [{data:counts, backgroundColor:donutColors, borderWidth:2, borderColor:'#faf9f6'}] },
-    options: { plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:10}}}}, cutout:'55%' }
-  });
+      // Size the circle so it covers the whole viewport from that origin
+      const maxDim = Math.max(
+        Math.hypot(cx, cy),
+        Math.hypot(window.innerWidth - cx, cy),
+        Math.hypot(cx, window.innerHeight - cy),
+        Math.hypot(window.innerWidth - cx, window.innerHeight - cy)
+      ) * 2 + 40;
 
-  new Chart(document.getElementById('c1c'), {
-    type: 'bar',
-    data: {
-      labels: [...labels].reverse(),
-      datasets: [{data:[...counts].reverse(), backgroundColor:TEAL, borderRadius:3, borderSkipped:false}]
-    },
-    options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}} }
-  });
-}
+      const overlay = document.getElementById('overlay');
+      const circle  = document.getElementById('transCircle');
 
-function renderSection2(T2a, T2b, T2c) {
-  const tbody    = document.getElementById('table2-body');
-  const hourTotal = T2a.reduce((s,d) => s + +d.stop_count, 0);
+      circle.style.width  = maxDim + 'px';
+      circle.style.height = maxDim + 'px';
+      circle.style.left   = (cx - maxDim / 2) + 'px';
+      circle.style.top    = (cy - maxDim / 2) + 'px';
+      circle.style.background = colors[type];
+      circle.style.opacity = '1';
+      circle.style.transform = 'scale(0)';
 
-  // Top 5 busiest hours
-  [...T2a].sort((a,b) => b.stop_count - a.stop_count).slice(0,5).forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td class="num">${String(+d.hour).padStart(2,'0')}:00</td>
-      <td>Hour of Day</td>
-      <td class="num accent">${(+d.stop_count).toLocaleString()}</td>
-      <td class="num">${(100 * d.stop_count / hourTotal).toFixed(1)}%</td>
-    </tr>`;
-  });
+      overlay.classList.add('active');
+      overlay.style.opacity = '1';
 
-  const wdTotal = T2b.reduce((s,d) => s + +d.stop_count, 0);
-  T2b.forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td>${d.weekday}</td>
-      <td>Day of Week</td>
-      <td class="num accent">${(+d.stop_count).toLocaleString()}</td>
-      <td class="num">${(100 * d.stop_count / wdTotal).toFixed(1)}%</td>
-    </tr>`;
-  });
+      // Force reflow then animate
+      circle.getBoundingClientRect();
+      circle.style.transition = 'transform 0.65s cubic-bezier(0.4, 0, 0.2, 1)';
+      circle.style.transform  = 'scale(1)';
 
-  new Chart(document.getElementById('c2a'), {
-    type: 'line',
-    data: {
-      labels: T2a.map(d => d.hour + ':00'),
-      datasets: [{data:T2a.map(d=>+d.stop_count), borderColor:RED,
-        backgroundColor:'rgba(192,57,43,0.08)', fill:true, tension:0.4,
-        pointRadius:3, pointBackgroundColor:RED}]
-    },
-    options: { plugins:{legend:{display:false}},
-      scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false},ticks:{maxTicksLimit:12}}} }
-  });
+      // Navigate once circle covers screen
+      setTimeout(() => {
+        window.location.href = href;
+      }, 620);
 
-  new Chart(document.getElementById('c2b'), {
-    type: 'bar',
-    data: {
-      labels: T2b.map(d => d.weekday),
-      datasets: [{data:T2b.map(d=>+d.stop_count),
-        backgroundColor: T2b.map(d => (d.weekday==='Saturday'||d.weekday==='Sunday') ? WARM : TEAL),
-        borderRadius:3, borderSkipped:false}]
-    },
-    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}} }
-  });
-
-  new Chart(document.getElementById('c2c'), {
-    type: 'bar',
-    data: {
-      labels: T2c.map(d => d.month),
-      datasets: [{data:T2c.map(d=>+d.stop_count), backgroundColor:RED, borderRadius:3, borderSkipped:false}]
-    },
-    options: { plugins:{legend:{display:false}}, scales:{y:{grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}} }
-  });
-}
-
-function renderSection3(T3, T4) {
-  const tbody = document.getElementById('table3-body');
-  T3.forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td><strong>${d.reason}</strong></td>
-      <td class="num">${(+d.total).toLocaleString()}</td>
-      <td class="num">${d.warning_pct}%</td>
-      <td class="num">${d.citation_pct}%</td>
-      <td class="num ${d.arrest_pct > 5 ? 'accent' : ''}">${d.arrest_pct}%</td>
-      <td class="num">${d.hit_rate_pct}%</td>
-    </tr>`;
-  });
-
-  new Chart(document.getElementById('c3a'), {
-    type: 'bar',
-    data: {
-      labels: T3.map(d => d.reason),
-      datasets: [
-        {label:'Warning',  data:T3.map(d=>+d.warning_pct),  backgroundColor:TEAL, borderRadius:0},
-        {label:'Citation', data:T3.map(d=>+d.citation_pct), backgroundColor:'rgba(192,57,43,0.5)', borderRadius:0},
-        {label:'Arrest',   data:T3.map(d=>+d.arrest_pct),   backgroundColor:RED,  borderRadius:0},
-      ]
-    },
-    options: {
-      plugins:{legend:{position:'bottom', labels:{boxWidth:10}}},
-      scales:{
-        x:{stacked:true, grid:{display:false}},
-        y:{stacked:true, max:100, ticks:{callback:v=>v+'%'}, grid:{color:'rgba(0,0,0,0.05)'}}
-      }
-    }
-  });
-
-  new Chart(document.getElementById('c3b'), {
-    type: 'bar',
-    data: {
-      labels: T3.map(d => d.reason),
-      datasets: [{data:T3.map(d=>+d.hit_rate_pct), backgroundColor:WARM, borderRadius:3, borderSkipped:false}]
-    },
-    options: {
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.05)'}}}
-    }
-  });
-
-  new Chart(document.getElementById('c3c'), {
-    type: 'bar',
-    data: {
-      labels: T4.map(d => d.race),
-      datasets: [
-        {label:'Warning %',  data:T4.map(d=>+d.warning_pct),  backgroundColor:TEAL, borderRadius:3, borderSkipped:false},
-        {label:'Citation %', data:T4.map(d=>+d.citation_pct), backgroundColor:'rgba(192,57,43,0.45)', borderRadius:3, borderSkipped:false},
-        {label:'Arrest %',   data:T4.map(d=>+d.arrest_pct),   backgroundColor:RED,  borderRadius:3, borderSkipped:false},
-      ]
-    },
-    options: {
-      plugins:{legend:{position:'bottom', labels:{boxWidth:10}}},
-      scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.05)'}}}
-    }
-  });
-}
-
-// ── Fetch all data from live API then render ──────────────────────────────
-async function loadAll() {
-  try {
-    const [r1, r2a, r2b, r2c, r3, r4a] = await Promise.all([
-      fetch('data_api.php?task=1').then(r => r.json()),
-      fetch('data_api.php?task=2a').then(r => r.json()),
-      fetch('data_api.php?task=2b').then(r => r.json()),
-      fetch('data_api.php?task=2c').then(r => r.json()),
-      fetch('data_api.php?task=3').then(r => r.json()),
-      fetch('data_api.php?task=4a').then(r => r.json()),
-    ]);
-
-    renderSection1(r1.data);
-    renderSection2(r2a.data, r2b.data, r2c.data);
-    renderSection3(r3.data, r4a.data);
-
-  } catch(err) {
-    console.error('Failed to load data:', err);
-    document.body.insertAdjacentHTML('afterbegin',
-      `<div style="background:#c0392b;color:#fff;padding:12px 64px;font-family:monospace;font-size:12px;">
-        ⚠ Could not load data from data_api.php — make sure both files are on the same server.
-      </div>`);
+    }, 160);
   }
-}
 
-loadAll();
+  // Keyboard accessibility: Enter/Space on cards
+  document.querySelectorAll('.dim-card').forEach(card => {
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
 </script>
 </body>
 </html>

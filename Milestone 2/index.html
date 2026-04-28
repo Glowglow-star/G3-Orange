@@ -7,16 +7,16 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f3ee;
-    --paper: #faf9f6;
-    --ink: #303030;
-    --ink-light: #6b6860;
-    --rule: #d6d3cc;
-    --accent: #ba554a;
-    --accent-warm: #e67e22;
-    --teal: #1a7a6e;
-    --surface: #edeae3;
-  }
+  --bg: #fbf3e8;        /* 主背景（FT纸色） */
+  --paper: #fbf3e8;     /* 卡片 */
+  --ink: #424242;      /* 主文字 */
+  --ink-light: #7a746b; /* 次文字 */
+  --rule: #e2d6c6;      /* 分割线 */
+
+  --accent: #cf864b;        /* 主橙 */
+  --accent-soft: #e2b48c;   /* 浅橙 */
+  --accent-deep: #9a5a2f;   /* 深橙 */
+}
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -24,6 +24,7 @@
     background: var(--bg);
     color: var(--ink);
     font-family: 'DM Sans', sans-serif;
+    
   }
 
   /* Masthead nav */
@@ -36,13 +37,18 @@
     height: 60px;
     position: sticky;
     top: 0;
-    z-index: 1000;   /* 👈 防止被下面内容盖住 */
+    z-index: 1000;  
   }
 
-  .masthead-logo img {
-  height: 20px;
+  .masthead-logo {
+  display: flex;
   vertical-align: middle;
+  align-items: center;   
+  gap: 10px; 
   }
+  .masthead-logo img {
+  height: 35px; 
+}
 
   .masthead-tagline {
     font-family: 'IBM Plex Mono', monospace;
@@ -120,7 +126,7 @@
   .hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    min-height: 520px;
+    min-height: calc(100vh - 60px);
     border-bottom: 1px solid var(--rule);
   }
 
@@ -134,7 +140,7 @@
 
   .eyebrow {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 2px;
     color: var(--accent);
     text-transform: uppercase;
@@ -147,7 +153,7 @@
     line-height: 1.1;
     letter-spacing: -1px;
     color: var(--ink);
-    margin-bottom: 24px;
+    margin-bottom: 30px;
   }
 
   h1 em {
@@ -156,7 +162,7 @@
   }
 
   .hero-body {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.75;
     color: var(--ink-light);
     max-width: 420px;
@@ -458,42 +464,53 @@
 }
 
   /* Footer */
-  footer {
-    background: var(--ink);
-    border-top: 1px solid var(--rule);
-    padding: 28px 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+.footer {
+  background: var(--ink);   
+  color: rgba(255,255,255,0.8);
+  padding: 48px 64px;
+}
 
-  .footer-left {
-    display: flex; align-items: center; gap: 16px;
-  }
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+}
 
-  .footer-logo span { font-style: italic; color: var(--accent); }
+/* 左侧 */
+.footer-left {
+  max-width: 550px;
+}
 
-  .footer-divider {
-    width: 1px; height: 20px;
-    background: var(--rule);
-  }
+.footer-brand {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 12px;
+}
 
-  .footer-credit {
-    font-size: 14px;
-    color: var(--paper);
-  }
+.footer-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.6);
+}
 
-  .footer-right {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-light);
-    letter-spacing: 0.5px;
-  }
-  .sf-sketch img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.9;
+/* 右侧 */
+.footer-right {
+  text-align: right;
+}
+
+.footer-meta {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  color: rgba(255,255,255,0.6);
+}
+
+.footer-credit {
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.5);
 }
 </style>
 </head>
@@ -501,12 +518,12 @@
 
 <div class="masthead">
   <div class="masthead-logo">
-  <img src="logo1.png" alt="StopAtlas Logo">
+  <img src="logo_lower.png" alt="StopAtlas Logo"> 
 </div>
   <nav class="masthead-nav">
   <a href="index.html" class="active">Home</a>
   <a href="map.html">Map</a>
-  <a href="geography.html">Analysis</a>
+  <a href="analysis.html">Analysis</a>
   <a href="resources.html">Resources</a>
   </nav>
 </div>
@@ -568,54 +585,32 @@
       </div>
 </div>
 
-<!-- Three columns -->
-<section class="three-col">
-  <div class="col-panel">
-    <div class="col-number">01</div>
-    <div class="col-tag">Where</div>
-    <h3>Spatial Patterns</h3>
-    <p>Which neighborhoods see concentrated stop activity? Heatmaps reveal policing intensity across San Francisco's districts.</p>
-    <div class="mini-chart">
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Mission</span><div class="bar-fill" style="width:140px"></div><span>4.2k</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">SoMa</span><div class="bar-fill" style="width:110px"></div><span>3.1k</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Tenderloin</span><div class="bar-fill" style="width:90px"></div><span>2.6k</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Bayview</span><div class="bar-fill" style="width:75px"></div><span>2.1k</span></div>
+
+<footer class="footer">
+  <div class="footer-inner">
+
+    <!-- 左 -->
+    <div class="footer-left">
+      <div class="footer-brand">StopAtlas</div>
+      <p class="footer-desc">
+        Exploring patterns in traffic stops across the United States <br>starting with San Francisco
+      </p>
     </div>
-  </div>
 
-  <div class="col-panel">
-    <div class="col-number">02</div>
-    <div class="col-tag">Why</div>
-    <h3>Stop Reasons</h3>
-    <p>Traffic violations, equipment checks, or suspicion-based stops? See how stop reasons distribute across neighborhoods.</p>
-    <div class="mini-chart">
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Traffic viol.</span><div class="bar-fill teal" style="width:130px"></div><span>52%</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Equipment</span><div class="bar-fill teal" style="width:80px"></div><span>31%</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Suspicion</span><div class="bar-fill teal" style="width:40px"></div><span>12%</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Other</span><div class="bar-fill teal" style="width:15px"></div><span>5%</span></div>
+    <!-- 右 -->
+    <div class="footer-right">
+      <p class="footer-meta">
+        Data: Stanford Open Policing Project<br>
+        Analysis: Spatial · Temporal · Outcomes
+      </p>
+
+      <p class="footer-credit">
+        Designed & developed by Your Name<br>
+        USC · 2026
+      </p>
     </div>
-  </div>
 
-  <div class="col-panel">
-    <div class="col-number">03</div>
-    <div class="col-tag">What Happens Next</div>
-    <h3>Enforcement Outcomes</h3>
-    <p>Does the same violation result in a warning here but an arrest there? Outcome disparities across areas and demographics.</p>
-    <div class="mini-chart">
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Citation</span><div class="bar-fill warm" style="width:120px"></div><span>48%</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Warning</span><div class="bar-fill warm" style="width:95px"></div><span>38%</span></div>
-      <div class="bar-row"><span style="width:80px;flex-shrink:0">Arrest</span><div class="bar-fill warm" style="width:35px"></div><span>14%</span></div>
-    </div>
   </div>
-</section>
-
-
-<footer>
-  <div class="footer-left">
-    
-    <div class="footer-credit">USC · IDSN 530 · Data Visualization Project</div>
-  </div>
-  <div class="footer-right"></div>
 </footer>
 
 </body>
