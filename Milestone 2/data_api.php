@@ -43,7 +43,8 @@ $sql_t1 = "
 ";
 
 // ── TASK 2a: Stops by Hour of Day ─────────────────────────────────────────
-// time field is seconds since midnight; FLOOR(time/3600) = hour 0-23
+// time field is still seconds since midnight; FLOOR(time/3600) = hour 0-23
+// date column changed to real DATE but time column is unchanged
 $sql_t2a = "
     SELECT 
         FLOOR(time / 3600) AS hour,
@@ -55,11 +56,11 @@ $sql_t2a = "
 ";
 
 // ── TASK 2b: Stops by Day of Week ─────────────────────────────────────────
-// date = days since 1970-01-01; multiply by 86400 to get Unix timestamp
+// date is stored as M/D/YYYY string (e.g. '1/8/2012'), need STR_TO_DATE to parse
 $sql_t2b = "
     SELECT 
-        DAYNAME(DATE(FROM_UNIXTIME(date * 86400))) AS weekday,
-        DAYOFWEEK(DATE(FROM_UNIXTIME(date * 86400))) AS weekday_num,
+        DAYNAME(STR_TO_DATE(date, '%m/%d/%Y')) AS weekday,
+        DAYOFWEEK(STR_TO_DATE(date, '%m/%d/%Y')) AS weekday_num,
         COUNT(*) AS stop_count
     FROM ca_san_francisco_50k
     WHERE date IS NOT NULL AND date != ''
@@ -68,10 +69,11 @@ $sql_t2b = "
 ";
 
 // ── TASK 2c: Stops by Month ───────────────────────────────────────────────
+// date is stored as M/D/YYYY string, need STR_TO_DATE to parse
 $sql_t2c = "
     SELECT 
-        MONTHNAME(DATE(FROM_UNIXTIME(date * 86400))) AS month,
-        MONTH(DATE(FROM_UNIXTIME(date * 86400))) AS month_num,
+        MONTHNAME(STR_TO_DATE(date, '%m/%d/%Y')) AS month,
+        MONTH(STR_TO_DATE(date, '%m/%d/%Y')) AS month_num,
         COUNT(*) AS stop_count
     FROM ca_san_francisco_50k
     WHERE date IS NOT NULL AND date != ''
