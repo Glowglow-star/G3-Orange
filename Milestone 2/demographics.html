@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StopAtlas - Stop Reasons & Outcomes</title>
+<title>StopAtlas - Demographics</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -227,167 +227,202 @@
 <div class="section-nav">
   <a href="geography.html">Geography</a>
   <a href="time.html">Time</a>
-  <a href="outcome.html" class="active">Outcomes</a>
-  <a href="demographics.html">Demographics</a>
+  <a href="outcome.html">Outcomes</a>
+  <a href="demographics.html" class="active">Demographics</a>
 </div>
 
-<section class="data-section" id="outcomes">
-  <div class="section-label">Task 3 · Stop Reason Analysis</div>
-  <div class="section-title">What happens after a stop?</div>
-  <div class="section-desc">Enforcement outcomes (warning / citation / arrest) broken down by stop reason. BOLO/Warrant stops result in arrests 42% of the time — far higher than any other category.</div>
+<section class="data-section" id="demographics">
+  <div class="section-label">Task 4 · Demographic Analysis</div>
+  <div class="section-title">Who gets stopped — and what happens to them?</div>
+  <div class="section-desc">Enforcement outcomes broken down by race and age group. Under the same stop conditions, different demographic groups show different arrest rates, which warrants careful examination.</div>
   <div class="analysis-block">
     <div class="analysis-kicker">Interpretation</div>
     <p>
-      Enforcement outcomes are closely associated with the stated reason for a stop.
-      Some stop categories end primarily in warnings or citations, while others show a much higher arrest share, suggesting that what happens after a stop is structured rather than uniform.
+      Outcome distributions vary across racial groups even when controlling for stop reason.
+      Black and Hispanic drivers show higher arrest rates compared to white and Asian/Pacific Islander drivers, a pattern that is consistent across the dataset.
     </p>
     <p>
-      The search hit rate — how often a search actually finds contraband — also varies significantly by stop reason, raising questions about whether searches are being applied consistently across stop types.
+      These differences do not by themselves establish causation, but they indicate that demographic group is associated with enforcement outcome in ways that deserve closer examination. Conclusions here should be framed as correlational, not causal.
     </p>
   </div>
 
-  <!-- Table 3 -->
-  <div class="table-wrap">
+  <!-- Table 4a: Race -->
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">By Race</div>
+  <div class="table-wrap" style="margin-bottom:48px;">
     <table>
       <thead>
         <tr>
-          <th>Stop Reason</th>
+          <th>Race</th>
           <th>Total Stops</th>
           <th>Warning %</th>
           <th>Citation %</th>
           <th>Arrest %</th>
-          <th>Search Hit Rate</th>
         </tr>
       </thead>
-      <tbody id="table3-body"></tbody>
+      <tbody id="table4a-body"></tbody>
     </table>
   </div>
 
-  <!-- Charts 3 -->
+  <!-- Table 4b: Age -->
+  <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:10px;">By Age Group</div>
+  <div class="table-wrap" style="margin-bottom:48px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Age Group</th>
+          <th>Total Stops</th>
+          <th>Arrests</th>
+          <th>Arrest Rate</th>
+        </tr>
+      </thead>
+      <tbody id="table4b-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Charts -->
   <div class="charts-grid">
     <div class="chart-card wide">
-      <div class="chart-label">Chart 1 of 2</div>
-      <div class="chart-title">Arrest risk by stop reason — x=arrest rate, y=search rate, size=total stops</div>
-      <div class="chart-wrap"><canvas id="c3a" height="220"></canvas></div>
+      <div class="chart-label">Chart 1 of 3</div>
+      <div class="chart-title">Outcome breakdown by race (stacked bar)</div>
+      <div class="chart-wrap"><canvas id="c4a" height="220"></canvas></div>
     </div>
     <div class="chart-card">
-      <div class="chart-label">Chart 2 of 2</div>
-      <div class="chart-title">Search contraband hit rate by reason</div>
-      <div class="chart-wrap" id="c3b-custom"></div>
+      <div class="chart-label">Chart 2 of 3</div>
+      <div class="chart-title">Arrest rate by race</div>
+      <div class="chart-wrap"><canvas id="c4b" height="220"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-label">Chart 3 of 3</div>
+      <div class="chart-title">Arrest rate by age group</div>
+      <div class="chart-wrap"><canvas id="c4c" height="220"></canvas></div>
     </div>
   </div>
+
   <div class="analysis-block">
     <div class="analysis-kicker">Key Takeaway</div>
     <p>
-      Post-stop outcomes are not evenly distributed. The data suggests that both the reason for the stop and the characteristics of the stopped population are associated with different enforcement results, making outcome analysis central to the larger StopAtlas story.
+      The data shows that arrest rates are not uniform across demographic groups. These patterns are consistent across the dataset and suggest that demographic analysis should be a central part of any complete examination of enforcement outcomes.
+    </p>
+    <p>
+      Note: correlation is not causation. Differences in arrest rate may reflect many factors including stop reason distribution, neighborhood, and other variables not fully controlled for here.
     </p>
   </div>
 </section>
 
 <script>
-// ── Chart color constants ─────────────────────────────────────────────────
 const RED   = '#c0392b';
 const TEAL  = '#1a7a6e';
 const WARM  = '#e67e22';
 const MUTED = '#6b6860';
-const donutColors = ['#c0392b','#e67e22','#1a7a6e','#8e44ad','#2980b9','#27ae60','#f39c12','#7f8c8d','#d35400','#16a085'];
 
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.font.size   = 12;
 Chart.defaults.color       = MUTED;
 
-// ── Render functions (called after data loads) ────────────────────────────
+function renderDemographics(T4a, T4b) {
 
-function renderSection3(T3) {
-  const tbody = document.getElementById('table3-body');
-  T3.forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td><strong>${d.reason}</strong></td>
-      <td class="num">${(+d.total).toLocaleString()}</td>
+  // ── Table 4a: race ────────────────────────────────────────────────────
+  const tbody4a = document.getElementById('table4a-body');
+  const maxTotal = Math.max(...T4a.map(d => +d.total));
+  T4a.forEach(d => {
+    const w = Math.round(80 * d.total / maxTotal);
+    tbody4a.innerHTML += `<tr>
+      <td><strong>${d.race}</strong></td>
+      <td class="num">
+        <div class="pct-bar-cell">
+          <div class="pct-bar teal" style="width:${w}px"></div>
+          <span>${(+d.total).toLocaleString()}</span>
+        </div>
+      </td>
       <td class="num">${d.warning_pct}%</td>
       <td class="num">${d.citation_pct}%</td>
-      <td class="num ${d.arrest_pct > 5 ? 'accent' : ''}">${d.arrest_pct}%</td>
-      <td class="num">${d.hit_rate_pct}%</td>
+      <td class="num ${d.arrest_pct > 2 ? 'accent' : ''}">${d.arrest_pct}%</td>
     </tr>`;
   });
 
-  const bubblePalette = ['#4C0035','#880030','#B72F15','#D6610A','#EF9100','#FFC300','#c0392b','#8e44ad','#2980b9','#16a085'];
-  const maxTotal = Math.max(...T3.map(d => +d.total));
-  const bubbleDatasets = T3.map((d, i) => ({
-    label: d.reason,
-    data: [{
-      x: +d.arrest_pct,
-      y: +(100 * d.searches / d.total).toFixed(1),
-      r: Math.max(6, Math.round(28 * Math.sqrt(+d.total / maxTotal)))
-    }],
-    backgroundColor: bubblePalette[i % bubblePalette.length] + 'cc',
-    borderColor: bubblePalette[i % bubblePalette.length],
-    borderWidth: 1.5
-  }));
+  // ── Table 4b: age ─────────────────────────────────────────────────────
+  const tbody4b = document.getElementById('table4b-body');
+  T4b.forEach(d => {
+    tbody4b.innerHTML += `<tr>
+      <td><strong>${d.age_group}</strong></td>
+      <td class="num">${(+d.total).toLocaleString()}</td>
+      <td class="num">${(+d.arrests).toLocaleString()}</td>
+      <td class="num ${d.arrest_pct > 2 ? 'accent' : ''}">${d.arrest_pct}%</td>
+    </tr>`;
+  });
 
-  new Chart(document.getElementById('c3a'), {
-    type: 'bubble',
-    data: { datasets: bubbleDatasets },
+  // ── Chart 4a: stacked bar race x outcome ─────────────────────────────
+  new Chart(document.getElementById('c4a'), {
+    type: 'bar',
+    data: {
+      labels: T4a.map(d => d.race),
+      datasets: [
+        {label:'Warning %',  data:T4a.map(d=>+d.warning_pct),  backgroundColor:TEAL, borderRadius:0, borderSkipped:false},
+        {label:'Citation %', data:T4a.map(d=>+d.citation_pct), backgroundColor:'rgba(192,57,43,0.45)', borderRadius:0, borderSkipped:false},
+        {label:'Arrest %',   data:T4a.map(d=>+d.arrest_pct),   backgroundColor:RED,  borderRadius:0, borderSkipped:false},
+      ]
+    },
     options: {
-      plugins: {
-        legend: { position:'bottom', labels:{ boxWidth:10, font:{size:10} } },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const d = ctx.raw;
-              return `${ctx.dataset.label} — Arrest: ${d.x}%, Search rate: ${d.y}%`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: { display:true, text:'Arrest Rate (%)', font:{size:11}, color:MUTED },
-          ticks: { callback: v => v+'%' },
-          grid: { color:'rgba(0,0,0,0.05)' }
-        },
-        y: {
-          title: { display:true, text:'Search Rate (%)', font:{size:11}, color:MUTED },
-          ticks: { callback: v => v+'%' },
-          grid: { color:'rgba(0,0,0,0.05)' }
-        }
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10 } } },
+      scales:{
+        x:{ stacked:true, grid:{ display:false } },
+        y:{ stacked:true, max:100, ticks:{ callback:v=>v+'%' }, grid:{ color:'rgba(0,0,0,0.05)' } }
       }
     }
   });
 
-  const maxHit = Math.max(...T3.map(d => +d.hit_rate_pct));
-  const sorted = [...T3].sort((a,b) => +b.hit_rate_pct - +a.hit_rate_pct);
-  const container = document.getElementById('c3b-custom');
-  container.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:4px 0;';
+  // ── Chart 4b: arrest rate by race only ───────────────────────────────
+  new Chart(document.getElementById('c4b'), {
+    type: 'bar',
+    data: {
+      labels: T4a.map(d => d.race),
+      datasets: [{
+        label: 'Arrest %',
+        data: T4a.map(d => +d.arrest_pct),
+        backgroundColor: T4a.map(d => +d.arrest_pct > 2 ? RED : WARM),
+        borderRadius: 3,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ display:false } },
+        y:{ ticks:{ callback:v=>v+'%' }, grid:{ color:'rgba(0,0,0,0.05)' } }
+      }
+    }
+  });
 
-  sorted.forEach((d, i) => {
-    const pct = +d.hit_rate_pct;
-    const isTop = pct === maxHit;
-    const isHigh = i < 3;
-    const isEmpty = pct === 0;
-    const barW = isEmpty ? 0 : Math.max(4, Math.round(100 * pct / maxHit));
-    const barColor = isTop ? '#B72F15' : isHigh ? '#D6610A' : isEmpty ? '#d6d3cc' : WARM;
-    const icon = isTop ? '⚠️' : isHigh ? '●' : '';
-    const labelColor = isEmpty ? 'var(--ink-light)' : 'var(--ink)';
-
-    container.innerHTML += `
-      <div style="display:flex;flex-direction:column;gap:3px;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:11px;color:${labelColor};min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${d.reason}">${icon} ${d.reason}</span>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${isTop?'#B72F15':MUTED};font-weight:${isTop?'600':'400'}">${isEmpty ? '—' : pct+'%'}</span>
-        </div>
-        <div style="height:8px;background:var(--rule);border-radius:4px;overflow:hidden;">
-          <div style="height:100%;width:${barW}%;background:${barColor};border-radius:4px;transition:width 0.4s ease;"></div>
-        </div>
-      </div>`;
+  // ── Chart 4c: arrest rate by age group ───────────────────────────────
+  new Chart(document.getElementById('c4c'), {
+    type: 'bar',
+    data: {
+      labels: T4b.map(d => d.age_group),
+      datasets: [{
+        label: 'Arrest %',
+        data: T4b.map(d => +d.arrest_pct),
+        backgroundColor: TEAL,
+        borderRadius: 3,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ display:false } },
+        y:{ ticks:{ callback:v=>v+'%' }, grid:{ color:'rgba(0,0,0,0.05)' } }
+      }
+    }
   });
 }
 
-// ── Fetch ─────────────────────────────────────────────────────────────────
 async function loadAll() {
   try {
-    const r3 = await fetch('data_api.php?task=3').then(r => r.json());
-    renderSection3(r3.data);
+    const [r4a, r4b] = await Promise.all([
+      fetch('data_api.php?task=4a').then(r => r.json()),
+      fetch('data_api.php?task=4b').then(r => r.json()),
+    ]);
+    renderDemographics(r4a.data, r4b.data);
   } catch(err) {
     console.error('Failed to load data:', err);
     document.body.insertAdjacentHTML('afterbegin',

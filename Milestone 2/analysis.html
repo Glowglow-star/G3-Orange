@@ -126,6 +126,7 @@
   .dim-card.geo::before  { background: var(--accent); }
   .dim-card.time::before { background: var(--accent-warm); }
   .dim-card.out::before  { background: var(--teal); }
+  .dim-card.demo::before { background: #8e44ad; }
 
   .dim-card:hover {
     transform: translateY(-4px);
@@ -154,6 +155,7 @@
   .dim-card.geo  .card-icon svg { stroke: var(--accent); }
   .dim-card.time .card-icon svg { stroke: var(--accent-warm); }
   .dim-card.out  .card-icon svg { stroke: var(--teal); }
+  .dim-card.demo .card-icon svg { stroke: #8e44ad; }
 
   .card-label {
     font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px;
@@ -162,6 +164,7 @@
   .dim-card.geo  .card-label { color: var(--accent); }
   .dim-card.time .card-label { color: var(--accent-warm); }
   .dim-card.out  .card-label { color: var(--teal); }
+  .dim-card.demo .card-label { color: #8e44ad; }
 
   .card-title {
     font-family: 'DM Serif Display', serif; font-size: 26px; letter-spacing: -0.5px;
@@ -179,6 +182,7 @@
   .dim-card.geo  .card-cta { color: var(--accent); }
   .dim-card.time .card-cta { color: var(--accent-warm); }
   .dim-card.out  .card-cta { color: var(--teal); }
+  .dim-card.demo .card-cta { color: #8e44ad; }
   .dim-card:hover .card-cta { gap: 12px; }
 
   .card-cta-arrow { font-size: 16px; line-height: 1; }
@@ -241,12 +245,13 @@
 <div class="section-nav" id="sectionNav">
   <a href="geography.html" id="navGeo">Geography</a>
   <a href="time.html"      id="navTime">Time</a>
-  <a href="outcomes.html"  id="navOut">Outcomes</a>
+  <a href="outcome.html"   id="navOut">Outcomes</a>
+  <a href="demographics.html" id="navDemo">Demographics</a>
 </div>
 
 <!-- ── Page Header ── -->
 <div class="page-header">
-  <div class="page-eyebrow">Data Analysis · ca_san_francisco_50k.csv · 50,000 Records</div>
+  <!-- <div class="page-eyebrow">Data Analysis · ca_san_francisco_50k.csv · 50,000 Records</div> -->
   <h1>Exploring SF Traffic Stops</h1>
   <p>Three analytical dimensions — spatial distribution, temporal patterns, and enforcement outcomes — drawn from San Francisco Police Department stop data. Each section includes a data table and three visualizations.</p>
 </div>
@@ -256,7 +261,7 @@
 
   <!-- Geography -->
   <div class="dim-card geo" id="card-geo" onclick="navigateTo('geography.html', this, 'geo')">
-    <div class="card-num">01 / 03</div>
+    <div class="card-num">01 / 04</div>
     <div class="card-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
@@ -271,7 +276,7 @@
 
   <!-- Time -->
   <div class="dim-card time" id="card-time" onclick="navigateTo('time.html', this, 'time')">
-    <div class="card-num">02 / 03</div>
+    <div class="card-num">02 / 04</div>
     <div class="card-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="9"/>
@@ -285,8 +290,8 @@
   </div>
 
   <!-- Outcomes -->
-  <div class="dim-card out" id="card-out" onclick="navigateTo('outcomes.html', this, 'out')">
-    <div class="card-num">03 / 03</div>
+  <div class="dim-card out" id="card-out" onclick="navigateTo('outcome.html', this, 'out')">
+    <div class="card-num">03 / 04</div>
     <div class="card-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -295,8 +300,23 @@
     </div>
     <div class="card-title">Outcomes</div>
     <div class="card-subtitle">What happens after a stop?</div>
-   
     <div class="card-cta">Explore enforcement outcomes <span class="card-cta-arrow">→</span></div>
+  </div>
+
+  <!-- Demographics -->
+  <div class="dim-card demo" id="card-demo" onclick="navigateTo('demographics.html', this, 'demo')">
+    <div class="card-num">04 / 04</div>
+    <div class="card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="7" r="3"/>
+        <circle cx="17" cy="7" r="3" opacity="0.5"/>
+        <path d="M3 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/>
+        <path d="M19 11a3 3 0 0 1 0 6" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="card-title">Demographics</div>
+    <div class="card-subtitle">Who gets stopped?</div>
+    <div class="card-cta">Explore demographic patterns <span class="card-cta-arrow">→</span></div>
   </div>
 
 </div>
@@ -304,7 +324,6 @@
 <!-- ── Footer ── -->
 <footer>
   <div class="footer-logo">Stop<span>Atlas</span></div>
-  <div class="footer-right">SF POLICE DEPARTMENT · 50,000 RECORDS · 2019–2023</div>
 </footer>
 
 <!-- ── Page transition overlay ── -->
@@ -324,12 +343,14 @@
     geo:  '#ba554a',
     time: '#e67e22',
     out:  '#1a7a6e',
+    demo: '#8e44ad',
   };
 
   const navLinks = {
     geo:  document.getElementById('navGeo'),
     time: document.getElementById('navTime'),
     out:  document.getElementById('navOut'),
+    demo: document.getElementById('navDemo'),
   };
 
   function navigateTo(href, cardEl, type) {
