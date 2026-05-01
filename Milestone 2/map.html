@@ -136,6 +136,7 @@
     Radius scale
     <input type="range" id="radiusSlider" min="2" max="20" value="6">
   </label>
+  <p id="mapStatus" style="margin:8px 0 0;color:var(--ink-light);max-width:200px;"></p>
 </div>
 
 <script>
@@ -164,14 +165,15 @@ function renderMarkers(radiusScale = 6) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  const max = Math.max(...dataRows.map(d => +d.stop_count || 1));
+  const counts = dataRows.map(d => +d.stop_count || 1);
+  const max = counts.length ? Math.max(...counts) : 1;
 
   dataRows.forEach(d => {
-    const lat = +d.lat;
-    const lng = +d.lng;
+    const lat = parseFloat(d.lat);
+    const lng = parseFloat(d.lng);
     const count = +d.stop_count || 1;
 
-    if (!lat || !lng) return;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
     const marker = L.circleMarker([lat, lng], {
       radius: Math.sqrt(count / max) * radiusScale,
@@ -179,23 +181,58 @@ function renderMarkers(radiusScale = 6) {
       fillOpacity: 0.35,
       color: 'transparent'
     })
-    .bindPopup(`<b>${d.location}</b><br>Stops: ${count}`)
+    .bindPopup(
+      `<b>${escapeHtml(d.location || '')}</b><br>` +
+      `District: ${escapeHtml(String(d.district ?? ''))}<br>` +
+      `District stops: ${count} (${d.share_of_total ?? '—'}% of total)` +
+      (d.incidents_here != null && d.incidents_here !== ''
+        ? `<br>Stops at this spot (merged): ${escapeHtml(String(d.incidents_here))}`
+        : '')
+    )
     .addTo(map);
 
     markers.push(marker);
   });
 }
 
-function parseCSV(text) {
-  const rows = text.split('\n').map(r => r.split(','));
-  const headers = rows.shift();
-  return rows.map(r => Object.fromEntries(headers.map((h,i)=>[h,r[i]])));
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 async function loadData() {
-  const text = await fetch('table_geo.csv').then(r => r.text());
-  dataRows = parseCSV(text);
-  renderMarkers();
+  const status = document.getElementById('mapStatus');
+  status.textContent = 'Loading stops…';
+  try {
+    const res = await fetch('data_api.php?task=map');
+    const text = await res.text();
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch (e) {
+      status.textContent = 'Bad response from server (not JSON).';
+      console.error('Map API non-JSON:', text.slice(0, 500));
+      return;
+    }
+    if (!res.ok) {
+      status.textContent = 'Request failed: ' + res.status;
+      return;
+    }
+    if (payload.error || (payload.data && payload.data.error)) {
+      status.textContent = 'API error — check console.';
+      console.error('Map API error:', payload.error || payload.data);
+      return;
+    }
+    dataRows = Array.isArray(payload.data) ? payload.data : [];
+    status.textContent = dataRows.length ? `${dataRows.length} locations` : 'No rows returned.';
+    renderMarkers();
+  } catch (e) {
+    status.textContent = 'Network error — is Apache/PHP running?';
+    console.error(e);
+  }
 }
 
 loadData();

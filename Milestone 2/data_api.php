@@ -30,6 +30,20 @@ function runQuery($mysql, $sql) {
     return $rows;
 }
 
+// Avoid empty HTTP body when json_encode() fails on bad UTF-8 in text columns.
+function jsonOut($payload) {
+    $flags = JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE;
+    $json = json_encode($payload, $flags);
+    if ($json === false) {
+        echo json_encode(
+            ["error" => "json_encode failed", "detail" => json_last_error_msg()],
+            JSON_INVALID_UTF8_SUBSTITUTE
+        );
+        return;
+    }
+    echo $json;
+}
+
 // ── TASK 1: Stops by District ─────────────────────────────────────────────
 // date field is days since 1970-01-01 (R epoch); 2007 data has district codes
 $sql_t1 = "
@@ -140,6 +154,51 @@ $sql_t4b = "
     ORDER BY FIELD(age_group, '18-25', '26-40', '41-65', '66+', 'Other')
 ";
 
+// ── Map: cluster rows by ~100m grid (3 decimal degrees) + district so nearby GPS
+//    jitter merges into one marker; incidents_here = stops in that bucket.
+$sql_map = "
+    SELECT
+        t.lat,
+        t.lng,
+        t.location,
+        t.district,
+        t.incidents_here,
+        d.stop_count,
+        ROUND(d.stop_count * 100.0 / total.total_count, 1) AS share_of_total
+    FROM (
+        SELECT
+            AVG(lat + 0) AS lat,
+            AVG(lng + 0) AS lng,
+            MAX(location) AS location,
+            district,
+            COUNT(*) AS incidents_here
+        FROM ca_san_francisco_50k
+        WHERE lat IS NOT NULL
+          AND lng IS NOT NULL
+          AND lat != ''
+          AND lng != ''
+          AND district IS NOT NULL
+          AND district != ''
+        GROUP BY
+            ROUND(lat + 0, 3),
+            ROUND(lng + 0, 3),
+            district
+    ) t
+    JOIN (
+        SELECT
+            district,
+            COUNT(*) AS stop_count
+        FROM ca_san_francisco_50k
+        WHERE district IS NOT NULL AND district != ''
+        GROUP BY district
+    ) d ON t.district = d.district
+    CROSS JOIN (
+        SELECT COUNT(*) AS total_count
+        FROM ca_san_francisco_50k
+        WHERE district IS NOT NULL AND district != ''
+    ) total
+";
+
 // ── Route and respond ─────────────────────────────────────────────────────
 switch ($task) {
     case '1':
@@ -162,6 +221,9 @@ switch ($task) {
         break;
     case '4b':
         echo json_encode(["task" => "age_vs_arrest",      "data" => runQuery($mysql, $sql_t4b)]);
+        break;
+    case 'map':
+        jsonOut(["task" => "map_points",         "data" => runQuery($mysql, $sql_map)]);
         break;
     default: // 'all'
         echo json_encode([
